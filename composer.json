@@ -1,0 +1,49 @@
+{
+    "name": "smartIPM/smartIPM",
+    "description": "SmartIPM Fiware app.",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Diego Guidotti",
+            "email": "guidotti@aedit.it"
+        },
+				{
+            "name": "Michele Mammini",
+            "email": "mamminim@gmail.com"
+        }
+    ],
+    "minimum-stability": "stable",
+    "repositories": [
+        {
+            "url": "https://github.com/diegoguidotti/dbmng2.git",
+            "type": "git"
+        },
+        {
+            "url": "https://github.com/adoy/PHP-OAuth2.git",
+            "type": "git"
+        }
+    ],
+    "require": {
+        "php": ">=5.3.3",
+        "dbmng/dbmng": "dev-master",
+        "adoy/oauth2": "dev-master"
+    },
+    "require-dev": {
+        "mockery/mockery": "~0.9",
+        "phpunit/phpunit": "~4.1",
+        "phpunit/dbunit": "1.2.*"
+    },
+    "autoload": {
+        "psr-4": {
+            "smartIPM\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "smartIPM\\Tests\\": "tests/"
+        }
+    },
+    "config": {
+        "bin-dir": "bin/"
+    }
+}
