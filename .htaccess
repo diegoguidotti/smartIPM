@@ -1,0 +1,4 @@
+RewriteEngine On
+
+RewriteCond %{REQUEST_URI} ^/smartIPM/api/(.*)$
+RewriteRule .* api.php [L]
