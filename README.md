@@ -8,8 +8,16 @@ smartIPM FiWare project
 	cp default.settings settings
 	nano settings #update the setting configuration
 
-	#php5-curl is a pre-requisite for the oauth2 client
+	#php5-curl and mod_rewrite are pre-requisites for the oauth2 client and REST api
 	apt-get install php5-curl
+
+
+	a2enmod rewrite
+	sudo nano /etc/apache2/sites-enabled/000-default
+			AllowOverride All  
+
+	service apache2 restart
+
 
  
 
