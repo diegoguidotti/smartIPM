@@ -6,8 +6,9 @@
 	use smartIPM\FIWARELogin;
 	use smartIPM\BasicLogin;
 
+	$db = Dbmng\Db::createDb($aSetting['DB']['DB_DSN'], $aSetting['DB']['DB_USER'], $aSetting['DB']['DB_PASSWD'] );
 
-	print_r($aSetting);
+	$app=new Dbmng\App($db, $aSetting);
 
   $aPage=Array();
 
@@ -44,6 +45,9 @@
 		$aPage['nav'][1]['link']='?sect=test_user';
 		$aPage['nav'][2]['title']='Test DBMNG';
 		$aPage['nav'][2]['link']='?sect=test_dbmng';
+		$aPage['nav'][3]['title']='Test API';
+		$aPage['nav'][3]['link']='?sect=test_api';
+
 
 
 		//$body.='Hi '.$login->getUserNameFI()."!";
@@ -51,12 +55,13 @@
 		if(isset($_REQUEST['sect'])){
 
 			if($_REQUEST['sect']=='test_user'){
-
-
 				$body.=testUser($login);
 			}
 			else if($_REQUEST['sect']=='test_dbmng'){
-				$body.=testDbmng($aSetting);
+				$body.=testDbmng($app);
+			}
+			else if($_REQUEST['sect']=='test_api'){
+				$body.=testApi($app);
 			}
 		}
 	}
@@ -92,7 +97,7 @@
 		return $body;
 	}
 
-	function testDbmng($aSetting){
+	function testDbmng($app){
 		$body='aa';
 
 		
@@ -101,7 +106,7 @@
 
 			
 
-		  $db = Dbmng\Db::createDb($aSetting['DB']['DB_DSN'], $aSetting['DB']['DB_USER'], $aSetting['DB']['DB_PASSWD'] );
+		  
 
 			$aForm=array(  
 				'table_name' => 'test' ,
@@ -117,11 +122,24 @@
 			$aParam['filters']['id']=1;
 			$aParam['filters']['name']='Diego';
 
-			$dbmng=new Dbmng\Dbmng($db, $aForm, $aParam);
+			$dbmng=new Dbmng\Dbmng($app->getDb(), $aForm, $aParam);
 
 		}
 
 		return $body;
+	}
+
+
+	function testApi($app){
+
+		$html='test Api';
+
+		$html.='<script src="js/smartIPM.js"></script><div id="test_api"></div>';
+		$html.="<script>jQuery(function(){testApi();});</script>";	
+
+
+
+		return $html;
 	}
 
 ?>

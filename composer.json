@@ -26,7 +26,8 @@
     "require": {
         "php": ">=5.3.3",
         "dbmng/dbmng": "dev-master",
-        "adoy/oauth2": "dev-master"
+        "adoy/oauth2": "dev-master",
+        "respect/rest": "0.6.*"
     },
     "require-dev": {
         "mockery/mockery": "~0.9",

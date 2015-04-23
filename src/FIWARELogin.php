@@ -93,7 +93,7 @@ class FIWARELogin {
 			 
  	     	$this->isAut=true;
 
-			echo("<pre>".print_r($response,true)."</pre>");
+			//echo("<pre>".print_r($response,true)."</pre>");
         	$_SESSION['smartIPM_access_token']=$this->access_token;
         	//echo "Setted session to".$this->access_token;
 
