@@ -14,7 +14,7 @@ smartIPM FiWare project
 
 	a2enmod rewrite
 	sudo nano /etc/apache2/sites-enabled/000-default
-			AllowOverride All  
+			AllowOverride All   (in the directory /var/www/)
 
 	service apache2 restart
 
