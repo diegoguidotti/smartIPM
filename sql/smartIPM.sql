@@ -38,7 +38,7 @@ CREATE TABLE model
   up_threshold double precision,
   biofix integer,
   CONSTRAINT model_pkey PRIMARY KEY (id_model)
-)
+);
 
 
 CREATE TABLE model_stage
@@ -51,6 +51,6 @@ CREATE TABLE model_stage
   accumulation double precision,
   stage_order integer,
   CONSTRAINT model_stage_pkey PRIMARY KEY (id_model_stage)
-)
+);
 
 

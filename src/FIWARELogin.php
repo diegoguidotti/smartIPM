@@ -103,10 +103,20 @@ class FIWARELogin {
 
 
 
-    public function fetchUrl($url){
+    public function fetchUrl($url, $debug=false){
+			$ret_dbg="";
 
 
-    
+			/*
+			echo("<pre>".print_r($_SESSION,true)."</pre>");
+			$params = array('refresh_token' => $_SESSION['smartIPM_refresh_token']);
+			echo("<pre>".print_r($params,true)."</pre>");
+			$response = $this->client->getAccessToken($this->var['TOKEN_ENDPOINT'], 'refresh_token', $params);
+			if($debug){
+				$ret_dbg.=("<pre>".print_r($response,true)."</pre>");
+
+			}
+			*/
 
     	$ch = curl_init();
 			curl_setopt($ch, CURLOPT_URL,$url);
@@ -119,10 +129,6 @@ class FIWARELogin {
 			curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
 			curl_setopt($ch, CURLOPT_VERBOSE, 1);
 			curl_setopt($ch, CURLOPT_HEADER, 1);
-			echo "Use the following token".$this->accessToken;
-			
-
-		   
 
 			$headers = array();
 			//$headers[] = 'X-Auth-Token: '.$this->accessToken;
@@ -137,13 +143,21 @@ class FIWARELogin {
 			$header_size = curl_getinfo($ch, CURLINFO_HEADER_SIZE);
 			$header = substr($response, 0, $header_size);
 			$body = substr($response, $header_size);
-			echo '<h3>Header</h3><pre>'.$header.'</pre>';
-			echo '<h3>Body</h3><pre>'.$body.'</pre>';
-			echo "CURL out|".$url."||".$response."|";
 
 			curl_close ($ch);
-			return  json_decode($body);
+			if($debug){
+				
+				$ret_dbg.='<h3>Token</h3>'.$this->accessToken;
+				$ret_dbg.='<h3>Header</h3><pre>'.$header.'</pre>';
+				$ret_dbg.='<h3>Body</h3><pre>'.$body.'</pre>';
+				return $ret_dbg;
+			}
+			else{
+				return  json_decode($body);
+			}
     }
+
+    
 
     public function isAut(){
     	return $this->isAut;

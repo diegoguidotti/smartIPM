@@ -43,10 +43,10 @@
 		$aPage['navRight'][0]['title']=' Logout';
 		$aPage['navRight'][0]['link']='?do_logout=true';
 
-		$aPage['nav'][1]['title']='Test user';
+		$aPage['nav'][1]['title']='Test Oauth2';
 		$aPage['nav'][1]['link']='?sect=test_user';
-		$aPage['nav'][2]['title']='Test DBMNG';
-		$aPage['nav'][2]['link']='?sect=test_dbmng';
+		//$aPage['nav'][2]['title']='Test DBMNG';
+		//$aPage['nav'][2]['link']='?sect=test_dbmng';
 		$aPage['nav'][3]['title']='Test API';
 		$aPage['nav'][3]['link']='?sect=test_api';
 
@@ -66,6 +66,9 @@
 				$body.=testApi($app);
 			}
 		}
+		else{
+			$body.=getHome();
+		}
 	}
 
 	$aPage['content']=$body;
@@ -74,29 +77,33 @@
 	$html=$layout->getLayout();
 	echo $html;
 
+	function getHome(){
+		$html='Welcome to the smartAgriFood project smartIPM. ';
+		return $html;
+	}
+
+
 	function testUser($login){
 
-		$body='<h3>User data</h3>'; 
+		$html='<h3>User data</h3>'; 
+
+		$html.='<a href="?sect=test_user&check_url=http://37.131.251.117:8080/sdi/api/capabilities">Check http://37.131.251.117:8080/sdi/api/capabilities</a><br/>';
+		$html.='<a href="?sect=test_user&check_url=http://auth.ee.fispace.eu:8080/auth/realms/fispace/account">Check http://auth.ee.fispace.eu:8080/auth/realms/fispace/account</a><br/>';
 
 
-		//$body.='<script src="js/smartIPM.js"></script>';
-		//$body.="<script>testAuth('http://auth.ee.fispace.eu:8080/auth/realms/fispace/account/', '".$login->accessToken."');</script>";		
-				
-		//$url='http://auth.ee.fispace.eu:8080/auth/realms/fispace/account';
-		$url = 'http://37.131.251.117:8080/sdi/api/capabilities';
-		//$url = 'http://fispace.bo-mo.si:8080/weather-scenario-provider-backend/api/weather-scenario-simple/sample-request?token='.$login->accessToken;
-		
+		if(isset($_REQUEST['check_url'])){
 
-		$user_data=$login->fetchUrl($url);
-		$body.=("<pre>".print_r($user_data,true)."</pre>");
+			$url=$_REQUEST['check_url'];
+			$html.='<h3>Checking url</b>: '.$url."</h3>";
 
-		//$orion=($login->fetchUrl('http://orion.lab.fi-ware.org:1026/ngsi10/contextEntities/urn:smartsantander:testbed:357'));
-		//$body.='<br/><h3>Orion test</h3>';
-		//$body.=("<pre>".print_r($orion,true)."</pre>");
-		//print_r('a'.$login->fetchUrl('http://orion.lab.fi-ware.org:1026/ngsi10/contextEntities/urn:smartsantander:testbed:357'));
-		//print_r($login->getUrlAuth('https://account.lab.fiware.org/user'));
 
-		return $body;
+			$ret=$login->fetchUrl($url, true);
+
+			$html.=($ret);
+		}
+
+
+		return $html;
 	}
 
 	function testDbmng($app){
