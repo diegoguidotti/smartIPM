@@ -14,7 +14,8 @@
 
 	$aPage['project']="smartIPM";
 	$aPage['title']="Home Page";
-	$aPage['bootstrap_path']="/libraries/bootstrap/";
+	//$aPage['bootstrap_path']="/libraries/bootstrap/";
+	$aPage['bootstrap_path']="online";
 
 	$body="";
 	session_start();
