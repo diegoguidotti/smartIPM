@@ -190,6 +190,8 @@ class APIManager {
 				
 				if( $ok )
 					{
+						
+						header('Content-type: application/xml');
 						$xml ='<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 									<ns3:WeatherScenarioSimpleResponseMessage xmlns:ns2="http://www.limetri.eu/schemas/ygg" xmlns:ns3="http://www.fispace.eu/domain/ag"> 
 										<latitude>'.$obj->longitude.'</latitude>
@@ -207,7 +209,21 @@ class APIManager {
 					}
 				else
 					{
-						return '{ "ok": false,  "msg": "'.$msg.'"}';
+						header('Content-type: application/xml');
+						$xml ='<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+									<ns3:WeatherScenarioSimpleResponseMessage xmlns:ns2="http://www.limetri.eu/schemas/ygg" xmlns:ns3="http://www.fispace.eu/domain/ag"> 
+										<latitude>'.$obj->longitude.'</latitude>
+										<longitude>'.$obj->longitude.'</longitude>
+										<startTime>2015-02-13T00:00:00</startTime>
+										<endTime>2015-02-14T12:00:00</endTime>
+										<weatherVariable>0 0 0</weatherVariable>
+										<weatherVariable>0 1 8</weatherVariable>
+										<blockSeparator>:::</blockSeparator>
+										<decimalSeparator>.</decimalSeparator>
+										<tokenSeparator>;</tokenSeparator>
+										<values></values>
+									</ns3:WeatherScenarioSimpleResponseMessage>';
+						return $xml;
 					}
 
 			});
