@@ -59,7 +59,7 @@ class APIManager {
 
 			
 				$res = $db->select($q, $aVar);
-				
+				 
 				if($ok){
 					return '{ "ok": true, "weather_stations": '.json_encode($res['data']).'}';
 				}
@@ -68,7 +68,6 @@ class APIManager {
 
 				}
 			});
-
 
 			$r3->any('/api/weather/*', function($id_weather_station) use ($db) {
 
@@ -83,7 +82,6 @@ class APIManager {
 					return '{"ok": false, "msg": "Station not found"}';
 				}
 			});
-
 
 			$r3->any('/api/model/', function() use ($db) {
 		
@@ -138,6 +136,82 @@ class APIManager {
 				}
 			});
 
+			$r3->any('/api/weather-scenario-simple/', function() use ($db) {
+				
+				$body = file_get_contents("php://input");
+				
+				$obj = simplexml_load_string($body);
+				
+				$q = "select * from weather_station where 1=1 ";
+				$var = array();
+				
+				$ok = true;
+				if( isset($obj->longitude) && isset($obj->latitude) )
+					{
+						$q .= " and ST_Distance_Spheroid(geom, st_geomFromText('POINT( '||:lon||' '||:lat||')',4326),'SPHEROID[\"WGS 84\",6378137,298.257223563]')<:dist";
+						$q .= " order by ST_Distance_Spheroid(geom, st_geomFromText('POINT( '||:lon||' '||:lat||')',4326),'SPHEROID[\"WGS 84\",6378137,298.257223563]') limit 1";
+						
+						$var = array(':lon' => $obj->longitude, ':lat' => $obj->latitude, ':dist' => 50000);
+					}
+				//echo $db->getSQL($q,$var);
+				
+				$res = $db->select($q, $var);
+				if( $res['rowCount'] > 0 )
+					{
+						$ok = true;
+						$q  = "select * from weather_data where id_weather_station = :station";
+						$var = array(':station' => $res['data'][0]['id_weather_station']);
+						//print_r($res['data']);
+						//echo $db->getSQL($q,$var);
+						$res_data = $db->select($q, $var);
+						//print_r($res_data['data']);
+						if( $res_data['rowCount'] > 0 )
+							{
+								$outcsv = "";
+								
+								for( $r = 0; $r < $res_data['rowCount']; $r++ )
+									{
+										//echo "|".$res_data['rowCount'][$r]['time_ref']."|";
+										$outcsv .= $res_data['data'][$r]['time_ref'] . ";" . $res_data['data'][$r]['tmin'] . ";" . $res_data['data'][$r]['tmin'] . ":::"; 
+									}
+							}
+						else
+							{
+								$ok = false;
+								$msg = "No data available";
+							}
+						
+					}
+				else
+					{
+						$ok = false;
+						$msg = "No station selected";
+					}
+				
+				if( $ok )
+					{
+						$xml ='<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+									<ns3:WeatherScenarioSimpleResponseMessage xmlns:ns2="http://www.limetri.eu/schemas/ygg" xmlns:ns3="http://www.fispace.eu/domain/ag"> 
+										<latitude>'.$obj->longitude.'</latitude>
+										<longitude>'.$obj->longitude.'</longitude>
+										<startTime>2015-02-13T00:00:00</startTime>
+										<endTime>2015-02-14T12:00:00</endTime>
+										<weatherVariable>0 0 0</weatherVariable>
+										<weatherVariable>0 1 8</weatherVariable>
+										<blockSeparator>:::</blockSeparator>
+										<decimalSeparator>.</decimalSeparator>
+										<tokenSeparator>;</tokenSeparator>
+										<values>'.$outcsv.'</values>
+									</ns3:WeatherScenarioSimpleResponseMessage>';
+						return $xml;
+					}
+				else
+					{
+						return '{ "ok": false,  "msg": "'.$msg.'"}';
+					}
+
+			});
+			
 
 			$r3->any('/api/diego/*/*', function($var1="0", $var2="0") use ($db) {
 									
