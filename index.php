@@ -88,6 +88,10 @@
 		$html='<h3>User data</h3>'; 
 
 		$html.='<a href="?sect=test_user&check_url=http://37.131.251.117:8080/sdi/api/capabilities">Check http://37.131.251.117:8080/sdi/api/capabilities</a><br/>';
+		$html.='<a href="?sect=test_user&check_url=http://37.131.251.117:8080/sdi/api/capabilities/7/use">Check http://37.131.251.117:8080/sdi/api/capabilities/7/use</a><br/>';
+
+
+
 		$html.='<a href="?sect=test_user&check_url=http://auth.ee.fispace.eu:8080/auth/realms/fispace/account">Check http://auth.ee.fispace.eu:8080/auth/realms/fispace/account</a><br/>';
 
 
