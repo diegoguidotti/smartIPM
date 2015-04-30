@@ -1,0 +1,4 @@
+<xs:schema xmlns="http://smartIPM.ibm.com/requestWeatherOutputMessage.xsd" targetNamespace="http://smartIPM.ibm.com/requestWeatherOutputMessage.xsd" xmlns:xs="http://www.w3.org/2001/XMLSchema" attributeFormDefault="unqualified" elementFormDefault="qualified" id="requestWeatherOutputMessage">
+<xs:include schemaLocation = "smartIPM_DataTypes.xsd"/>
+<xs:element name="requestWeatherOutputMessage" type="WeatherScenarioSimpleResponseMessage"/>
+</xs:schema>

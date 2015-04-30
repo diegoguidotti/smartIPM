@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?><xs:schema xmlns="http://smartIPM.ibm.com/sendResourceNotificationInputMessage.xsd" targetNamespace="http://smartIPM.ibm.com/sendResourceNotificationInputMessage.xsd" xmlns:xs="http://www.w3.org/2001/XMLSchema" attributeFormDefault="unqualified" elementFormDefault="qualified" id="sendResourceNotificationInputMessage">
+<xs:element name="sendResourceNotificationInputMessage" type="sendResourceNotificationInputMessage"/>
+<xs:complexType name="resourceAvailableNotification">
+		<xs:annotation><xs:documentation>resourceAvailableNotification</xs:documentation></xs:annotation>
+		
+		<xs:sequence>
+			<xs:element xmlns:xs="http://www.w3.org/2001/XMLSchema" name="businessProcessId" type="xs:decimal" minOccurs="0" maxOccurs="unbounded"/>
+	</xs:sequence>
+		<xs:attribute name="availableResource" type="xs:string" use="required"/>
+</xs:complexType>
+<xs:complexType name="resourceAvailableNotificationFilter">
+		<xs:annotation><xs:documentation>resourceAvailableNotificationFilter</xs:documentation></xs:annotation>
+		
+		<xs:sequence>
+			<xs:element xmlns:xs="http://www.w3.org/2001/XMLSchema" name="businessProcessIdFilter" type="xs:string" minOccurs="0" maxOccurs="1"/>
+	</xs:sequence>
+		<xs:attribute name="availableResource" type="xs:string" use="optional"/>
+</xs:complexType>
+<xs:complexType name="sendResourceNotificationInputMessage">
+		<xs:sequence>
+			<xs:element name="resourceAvailable" type="resourceAvailableNotification" minOccurs="0" maxOccurs="1"/>
+	</xs:sequence>
+		<xs:attribute name="ID" use="required"><xs:simpleType><xs:restriction base="xs:long"><xs:maxLength value="null"/></xs:restriction></xs:simpleType></xs:attribute>
+</xs:complexType>
+</xs:schema>

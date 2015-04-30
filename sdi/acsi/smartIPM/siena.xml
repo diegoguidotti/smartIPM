@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="ASCII"?>
+<ca:CompositeApplication xmlns:ca="http://siena.ibm.com/model/CompositeApplication" name="smartIPM">
+  <ca:ExternalService id="RESTService1" name="RESTService1" type="restService" uri="http://www.smartipm.eu/smartIPM/api/weather-scenario-simple" credentials="None" user="" password="" serviceName="RESTService1">
+    <ca:Operation id="POSTRESTService1" type="POST" portName="" operationName="">
+      <ca:Input id="RESTService1Request" schemaUri="data/RESTService1InputMessage.xsd" rootElement="RESTService1InputMessage"/>
+      <ca:Output id="RESTService1Response" schemaUri="data/RESTService1OutputMessage.xsd" rootElement="RESTService1OutputMessage"/>
+    </ca:Operation>
+  </ca:ExternalService>
+  <ca:ExternalService id="sendResourceNotification" name="sendResourceNotification" type="restService" uri="http://www.smartipm.eu/smartIPM/api/receive-resource_notification" credentials="None" user="" password="" serviceName="sendResourceNotification">
+    <ca:Operation id="GETsendResourceNotification" type="GET" portName="" operationName="">
+      <ca:Input id="sendResourceNotificationRequest" schemaUri="data/sendResourceNotificationInputMessage.xsd" rootElement="sendResourceNotificationInputMessage"/>
+      <ca:Output id="sendResourceNotificationResponse" schemaUri="data/sendResourceNotificationOutputMessage.xsd" rootElement="sendResourceNotificationOutputMessage"/>
+    </ca:Operation>
+  </ca:ExternalService>
+  <ca:EventModel id="smartIPMEventModel" name="smartIPMEventModel">
+    <ca:Event id="requestWeather" name="requestWeather" description="">
+      <ca:InputMessage id="requestWeatherRequest" schemaUri="data/requestWeatherInputMessage.xsd" rootElement="requestWeatherInputMessage"/>
+      <ca:OutputMessage id="requestWeatherResponse" schemaUri="data/requestWeatherOutputMessage.xsd" rootElement="requestWeatherOutputMessage"/>
+    </ca:Event>
+    <ca:ServiceAdapter id="requestWeather_Service" name="requestWeather_Service" eventId="requestWeather"/>
+  </ca:EventModel>
+  <ca:Component id="smartIPM" name="smartIPM">
+    <ca:ProvidedService id="smartIPMLifecycle_Transition_0" name="CreatesmartIPM">
+      <ca:InputMessage id="smartIPMLifecycle_Transition_0Request" schemaUri="data/smartIPM.xsd" rootElement="smartIPM"/>
+      <ca:OutputMessage id="smartIPMLifecycle_Transition_0Response" schemaUri="data/smartIPM.xsd" rootElement="smartIPM"/>
+    </ca:ProvidedService>
+    <ca:InformationModel id="smartIPMInformationModel" rootDataItemId="smartIPM">
+      <ca:DataItem id="smartIPM" schemaUri="data/smartIPM.xsd" rootElement="smartIPM" listElement="smartIPMs"/>
+    </ca:InformationModel>
+    <ca:LifecycleModel id="smartIPMLifecycleModel">
+      <ca:Lifecycle id="smartIPMLifecycle" stateXPath="/smartIPM/CurrentState">
+        <ca:State id="Created" initial="true"/>
+        <ca:Transition id="smartIPMLifecycle_Transition_0" name="CreatesmartIPM" targetStateIds="Created" serviceId="smartIPMLifecycle_Transition_0">
+          <ca:Assign>
+            <ca:Mapping>
+              <ca:Source sourceId="smartIPMLifecycle_Transition_0Request" refType="serviceRequest" xPath="/smartIPM"/>
+              <ca:Target targetId="smartIPM" refType="artifact" xPath="/smartIPM"/>
+            </ca:Mapping>
+          </ca:Assign>
+          <ca:Assign>
+            <ca:Mapping>
+              <ca:Source sourceId="smartIPM" refType="artifact" xPath="/smartIPM"/>
+              <ca:Target targetId="smartIPMLifecycle_Transition_0Response" refType="serviceResponse" xPath="/smartIPM"/>
+            </ca:Mapping>
+          </ca:Assign>
+        </ca:Transition>
+      </ca:Lifecycle>
+    </ca:LifecycleModel>
+    <ca:DataAccessModel id="smartIPMAccessControlModel"/>
+    <ca:AccessControlModel/>
+  </ca:Component>
+</ca:CompositeApplication>

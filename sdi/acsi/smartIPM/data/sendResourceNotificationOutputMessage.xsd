@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?><xs:schema xmlns="http://smartIPM.ibm.com/sendResourceNotificationOutputMessage.xsd" targetNamespace="http://smartIPM.ibm.com/sendResourceNotificationOutputMessage.xsd" xmlns:xs="http://www.w3.org/2001/XMLSchema" attributeFormDefault="unqualified" elementFormDefault="qualified" id="sendResourceNotificationOutputMessage">
+<xs:element name="sendResourceNotificationOutputMessage" type="sendResourceNotificationOutputMessage"/>
+<xs:complexType name="sendResourceNotificationOutputMessage">
+		<xs:sequence>
+	</xs:sequence>
+</xs:complexType>
+</xs:schema>

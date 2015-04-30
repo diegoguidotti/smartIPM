@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?><xs:schema xmlns="http://smartIPM.ibm.com/smartIPM.xsd" targetNamespace="http://smartIPM.ibm.com/smartIPM.xsd" xmlns:xs="http://www.w3.org/2001/XMLSchema" attributeFormDefault="unqualified" elementFormDefault="qualified" id="smartIPM">
+<xs:include schemaLocation = "smartIPM_DataTypes.xsd"/>
+<xs:element name="smartIPM" type="smartIPM"/>
+<xs:element name="smartIPMs"><xs:complexType>
+		<xs:sequence>
+			<xs:element name="Filter" type="smartIPMFilter" minOccurs="0" maxOccurs="1"/>
+			<xs:element name="smartIPM" type="smartIPM" minOccurs="0" maxOccurs="unbounded"/>
+	</xs:sequence>
+		<xs:attribute name="startIndex" type="xs:int" use="optional"/>
+		<xs:attribute name="endIndex" type="xs:int" use="optional"/>
+		<xs:attribute name="sortBy" type="xs:string" use="optional"/>
+		<xs:attribute name="sortDirection" type="xs:string" use="optional"/>
+		<xs:attribute name="totalCount" type="xs:int" use="optional"/>
+		<xs:attribute name="withChildren" type="xs:boolean" use="optional"/>
+</xs:complexType></xs:element>
+</xs:schema>

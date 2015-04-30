@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?><xs:schema xmlns="http://smartIPM.ibm.com/RESTService1InputMessage.xsd" targetNamespace="http://smartIPM.ibm.com/RESTService1InputMessage.xsd" xmlns:xs="http://www.w3.org/2001/XMLSchema" attributeFormDefault="unqualified" elementFormDefault="qualified" id="RESTService1InputMessage">
+<xs:element name="RESTService1InputMessage" type="RESTService1InputMessage"/>
+<xs:complexType name="WeatherScenarioSimpleRequestMessage">
+		<xs:annotation><xs:documentation>WeatherScenarioSimpleRequestMessage</xs:documentation></xs:annotation>
+		
+		<xs:sequence>
+	</xs:sequence>
+		<xs:attribute name="businessProcessId" use="required"><xs:simpleType><xs:restriction base="xs:decimal"><xs:maxLength value="1"/></xs:restriction></xs:simpleType></xs:attribute>
+		<xs:attribute name="latitude" use="required"><xs:simpleType><xs:restriction base="xs:double"><xs:maxLength value="1"/></xs:restriction></xs:simpleType></xs:attribute>
+		<xs:attribute name="longitude" use="required"><xs:simpleType><xs:restriction base="xs:double"><xs:maxLength value="1"/></xs:restriction></xs:simpleType></xs:attribute>
+		<xs:attribute name="startTime" use="required"><xs:simpleType><xs:restriction base="xs:dateTime"><xs:maxLength value="1"/></xs:restriction></xs:simpleType></xs:attribute>
+		<xs:attribute name="endTime" use="required"><xs:simpleType><xs:restriction base="xs:dateTime"><xs:maxLength value="1"/></xs:restriction></xs:simpleType></xs:attribute>
+		<xs:attribute name="weatherVariable" use="required"><xs:simpleType><xs:restriction base="xs:string"><xs:maxLength value="1"/></xs:restriction></xs:simpleType></xs:attribute>
+</xs:complexType>
+<xs:complexType name="WeatherScenarioSimpleRequestMessageFilter">
+		<xs:annotation><xs:documentation>WeatherScenarioSimpleRequestMessageFilter</xs:documentation></xs:annotation>
+		
+		<xs:sequence>
+	</xs:sequence>
+		<xs:attribute name="businessProcessId" type="xs:string" use="optional"/>
+		<xs:attribute name="latitude" type="xs:string" use="optional"/>
+		<xs:attribute name="longitude" type="xs:string" use="optional"/>
+		<xs:attribute name="startTime" type="xs:string" use="optional"/>
+		<xs:attribute name="endTime" type="xs:string" use="optional"/>
+		<xs:attribute name="weatherVariable" type="xs:string" use="optional"/>
+</xs:complexType>
+<xs:complexType name="RESTService1InputMessage">
+		<xs:sequence>
+			<xs:element name="weatherScenarioSimpleRequest" type="WeatherScenarioSimpleRequestMessage" minOccurs="0" maxOccurs="1"/>
+	</xs:sequence>
+		<xs:attribute name="ID" use="required"><xs:simpleType><xs:restriction base="xs:long"><xs:maxLength value="null"/></xs:restriction></xs:simpleType></xs:attribute>
+		<xs:attribute name="attribute1" use="required"><xs:simpleType><xs:restriction base="xs:string"><xs:maxLength value="null"/></xs:restriction></xs:simpleType></xs:attribute>
+</xs:complexType>
+</xs:schema>

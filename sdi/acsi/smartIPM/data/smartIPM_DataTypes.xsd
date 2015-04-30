@@ -1,0 +1,176 @@
+<?xml version="1.0" encoding="utf-8"?><xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" attributeFormDefault="unqualified" elementFormDefault="qualified" id="smartIPM_DataTypes">
+<xs:element xmlns:xs="http://www.w3.org/2001/XMLSchema" name="WeatherScenarioSimpleRequestMessage" type="WeatherScenarioSimpleRequestMessage"/>
+<xs:element xmlns:xs="http://www.w3.org/2001/XMLSchema" name="WeatherScenarioSimpleRequestMessageFilter" type="WeatherScenarioSimpleRequestMessageFilter"/>
+<xs:element xmlns:xs="http://www.w3.org/2001/XMLSchema" name="WeatherScenarioSimpleresponseMessage" type="WeatherScenarioSimpleresponseMessage"/>
+<xs:element xmlns:xs="http://www.w3.org/2001/XMLSchema" name="WeatherScenarioSimpleresponseMessageFilter" type="WeatherScenarioSimpleresponseMessageFilter"/>
+<xs:element xmlns:xs="http://www.w3.org/2001/XMLSchema" name="WeatherScenarioSimpleResponseMessage" type="WeatherScenarioSimpleResponseMessage"/>
+<xs:element xmlns:xs="http://www.w3.org/2001/XMLSchema" name="WeatherScenarioSimpleResponseMessageFilter" type="WeatherScenarioSimpleResponseMessageFilter"/>
+<xs:element xmlns:xs="http://www.w3.org/2001/XMLSchema" name="resourceAvailableNotification" type="resourceAvailableNotification"/>
+<xs:element xmlns:xs="http://www.w3.org/2001/XMLSchema" name="resourceAvailableNotificationFilter" type="resourceAvailableNotificationFilter"/>
+<xs:element name="AvailableResource" type="AvailableResource"/>
+<xs:element name="AvailableResourceFilter" type="AvailableResourceFilter"/>
+<xs:complexType name="smartIPM">
+		<xs:sequence/>
+		<xs:attribute name="ID" type="xs:long" use="optional"/>
+		<xs:attribute name="CurrentState" use="required"><xs:simpleType><xs:restriction base="xs:string"><xs:enumeration value="Created"/></xs:restriction></xs:simpleType></xs:attribute>
+</xs:complexType>
+<xs:complexType name="smartIPMFilter">
+		<xs:sequence/>
+		<xs:attribute name="ID" type="xs:string" use="optional"/>
+		<xs:attribute name="CurrentState" type="xs:string" use="optional"/>
+</xs:complexType>
+<xs:complexType name="ABOStage">
+		<xs:sequence>
+			<xs:element xmlns:xs="http://www.w3.org/2001/XMLSchema" name="SubStage" type="ABOStage" maxOccurs="unbounded"/>
+	</xs:sequence>
+		<xs:attribute name="Name" type="xs:string" use="required"/>
+		<xs:attribute name="Status" type="xs:string" use="required"/>
+		<xs:attribute name="OpenTime" type="xs:dateTime" use="required"/>
+		<xs:attribute name="CloseTime" type="xs:dateTime" use="required"/>
+		<xs:attribute name="TaskTerminationStatus" type="xs:string" use="required"/>
+		<xs:attribute name="TaskTerminationMessage" type="xs:string" use="required"/>
+</xs:complexType>
+<xs:complexType name="ABOStageFilter">
+		<xs:sequence>
+			<xs:element xmlns:xs="http://www.w3.org/2001/XMLSchema" name="SubStageFilter" type="ABOStageFilter"/>
+	</xs:sequence>
+		<xs:attribute name="Name" type="xs:string" use="required"/>
+		<xs:attribute name="Status" type="xs:string" use="required"/>
+		<xs:attribute name="OpenTime" type="xs:string" use="required"/>
+		<xs:attribute name="CloseTime" type="xs:string" use="required"/>
+		<xs:attribute name="TaskTerminationStatus" type="xs:string" use="required"/>
+		<xs:attribute name="TaskTerminationMessage" type="xs:string" use="required"/>
+</xs:complexType>
+<xs:complexType name="Milestones">
+		<xs:sequence/>
+		<xs:attribute name="Name" type="xs:string" use="required"/>
+		<xs:attribute name="Status" type="xs:string" use="required"/>
+		<xs:attribute name="DateOccurred" type="xs:dateTime" use="required"/>
+		<xs:attribute name="StageID" type="xs:long" use="required"/>
+</xs:complexType>
+<xs:complexType name="MilestonesFilter">
+		<xs:sequence/>
+		<xs:attribute name="Name" type="xs:string" use="required"/>
+		<xs:attribute name="Status" type="xs:string" use="required"/>
+		<xs:attribute name="DateOccurred" type="xs:string" use="required"/>
+		<xs:attribute name="StageID" type="xs:string" use="required"/>
+</xs:complexType>
+<xs:complexType name="ABOEvent">
+		<xs:sequence/>
+		<xs:attribute name="Name" type="xs:string" use="required"/>
+		<xs:attribute name="Type" type="xs:string" use="required"/>
+		<xs:attribute name="SubType" type="xs:string" use="required"/>
+		<xs:attribute name="CreationTime" type="xs:dateTime" use="required"/>
+		<xs:attribute name="CompletionTime" type="xs:dateTime" use="required"/>
+		<xs:attribute name="Status" type="xs:string" use="required"/>
+		<xs:attribute name="WorkEventCreationTime" type="xs:dateTime" use="required"/>
+		<xs:attribute name="WorkEventID" type="xs:long" use="required"/>
+</xs:complexType>
+<xs:complexType name="ABOEventFilter">
+		<xs:sequence/>
+		<xs:attribute name="Name" type="xs:string" use="required"/>
+		<xs:attribute name="Type" type="xs:string" use="required"/>
+		<xs:attribute name="SubType" type="xs:string" use="required"/>
+		<xs:attribute name="CreationTime" type="xs:string" use="required"/>
+		<xs:attribute name="CompletionTime" type="xs:string" use="required"/>
+		<xs:attribute name="Status" type="xs:string" use="required"/>
+		<xs:attribute name="WorkEventCreationTime" type="xs:string" use="required"/>
+		<xs:attribute name="WorkEventID" type="xs:string" use="required"/>
+</xs:complexType>
+<xs:complexType name="ABOSubscription">
+		<xs:sequence/>
+		<xs:attribute name="InterestedArtifactType" type="xs:string" use="required"/>
+		<xs:attribute name="InterestedArtifactID" type="xs:long" use="required"/>
+		<xs:attribute name="InterestedXpath" type="xs:string" use="required"/>
+		<xs:attribute name="GuardOrMilestoneID" type="xs:string" use="required"/>
+</xs:complexType>
+<xs:complexType name="ABOSubscriptionFilter">
+		<xs:sequence/>
+		<xs:attribute name="InterestedArtifactType" type="xs:string" use="required"/>
+		<xs:attribute name="InterestedArtifactID" type="xs:string" use="required"/>
+		<xs:attribute name="InterestedXpath" type="xs:string" use="required"/>
+		<xs:attribute name="GuardOrMilestoneID" type="xs:string" use="required"/>
+</xs:complexType>
+<xs:complexType name="WeatherScenarioSimpleRequestMessage">
+		<xs:sequence/>
+		<xs:attribute name="businessProcessId" use="required"><xs:simpleType><xs:restriction base="xs:decimal"><xs:maxLength value="1"/></xs:restriction></xs:simpleType></xs:attribute>
+		<xs:attribute name="latitude" use="required"><xs:simpleType><xs:restriction base="xs:double"><xs:maxLength value="1"/></xs:restriction></xs:simpleType></xs:attribute>
+		<xs:attribute name="longitude" use="required"><xs:simpleType><xs:restriction base="xs:double"><xs:maxLength value="1"/></xs:restriction></xs:simpleType></xs:attribute>
+		<xs:attribute name="startTime" use="required"><xs:simpleType><xs:restriction base="xs:dateTime"><xs:maxLength value="1"/></xs:restriction></xs:simpleType></xs:attribute>
+		<xs:attribute name="endTime" use="required"><xs:simpleType><xs:restriction base="xs:dateTime"><xs:maxLength value="1"/></xs:restriction></xs:simpleType></xs:attribute>
+		<xs:attribute name="weatherVariable" use="required"><xs:simpleType><xs:restriction base="xs:string"><xs:maxLength value="1"/></xs:restriction></xs:simpleType></xs:attribute>
+</xs:complexType>
+<xs:complexType name="WeatherScenarioSimpleRequestMessageFilter">
+		<xs:sequence/>
+		<xs:attribute name="businessProcessId" type="xs:string" use="optional"/>
+		<xs:attribute name="latitude" type="xs:string" use="optional"/>
+		<xs:attribute name="longitude" type="xs:string" use="optional"/>
+		<xs:attribute name="startTime" type="xs:string" use="optional"/>
+		<xs:attribute name="endTime" type="xs:string" use="optional"/>
+		<xs:attribute name="weatherVariable" type="xs:string" use="optional"/>
+</xs:complexType>
+<xs:complexType name="WeatherScenarioSimpleResponseMessage">
+		<xs:sequence/>
+		<xs:attribute name="businessProcessId" use="required"><xs:simpleType><xs:restriction base="xs:decimal"><xs:maxLength value="1"/></xs:restriction></xs:simpleType></xs:attribute>
+		<xs:attribute name="latitude" use="required"><xs:simpleType><xs:restriction base="xs:double"><xs:maxLength value="1"/></xs:restriction></xs:simpleType></xs:attribute>
+		<xs:attribute name="longitude" use="required"><xs:simpleType><xs:restriction base="xs:double"><xs:maxLength value="1"/></xs:restriction></xs:simpleType></xs:attribute>
+		<xs:attribute name="startTime" use="required"><xs:simpleType><xs:restriction base="xs:dateTime"><xs:maxLength value="1"/></xs:restriction></xs:simpleType></xs:attribute>
+		<xs:attribute name="endTime" use="required"><xs:simpleType><xs:restriction base="xs:dateTime"><xs:maxLength value="1"/></xs:restriction></xs:simpleType></xs:attribute>
+		<xs:attribute name="weatherVariable" type="xs:string" use="required"/>
+		<xs:attribute name="blockSeparator" use="required"><xs:simpleType><xs:restriction base="xs:string"><xs:maxLength value="1"/></xs:restriction></xs:simpleType></xs:attribute>
+		<xs:attribute name="decimalSeparator" use="required"><xs:simpleType><xs:restriction base="xs:string"><xs:maxLength value="1"/></xs:restriction></xs:simpleType></xs:attribute>
+		<xs:attribute name="tokenSeparator" use="required"><xs:simpleType><xs:restriction base="xs:string"><xs:maxLength value="1"/></xs:restriction></xs:simpleType></xs:attribute>
+		<xs:attribute name="values" use="required"><xs:simpleType><xs:restriction base="xs:string"><xs:maxLength value="1"/></xs:restriction></xs:simpleType></xs:attribute>
+</xs:complexType>
+<xs:complexType name="WeatherScenarioSimpleResponseMessageFilter">
+		<xs:sequence/>
+		<xs:attribute name="businessProcessId" type="xs:string" use="optional"/>
+		<xs:attribute name="latitude" type="xs:string" use="optional"/>
+		<xs:attribute name="longitude" type="xs:string" use="optional"/>
+		<xs:attribute name="startTime" type="xs:string" use="optional"/>
+		<xs:attribute name="endTime" type="xs:string" use="optional"/>
+		<xs:attribute name="weatherVariable" type="xs:string" use="optional"/>
+		<xs:attribute name="blockSeparator" type="xs:string" use="optional"/>
+		<xs:attribute name="decimalSeparator" type="xs:string" use="optional"/>
+		<xs:attribute name="tokenSeparator" type="xs:string" use="optional"/>
+		<xs:attribute name="values" type="xs:string" use="optional"/>
+</xs:complexType>
+<xs:complexType name="resourceAvailableNotification">
+		<xs:sequence>
+			<xs:element xmlns:xs="http://www.w3.org/2001/XMLSchema" name="businessProcessId" type="xs:decimal" minOccurs="0" maxOccurs="unbounded"/>
+	</xs:sequence>
+		<xs:attribute name="availableResource" type="xs:string" use="required"/>
+</xs:complexType>
+<xs:complexType name="resourceAvailableNotificationFilter">
+		<xs:sequence>
+			<xs:element xmlns:xs="http://www.w3.org/2001/XMLSchema" name="businessProcessIdFilter" type="xs:string" minOccurs="0" maxOccurs="1"/>
+	</xs:sequence>
+		<xs:attribute name="availableResource" type="xs:string" use="optional"/>
+</xs:complexType>
+<xs:complexType name="AvailableResource">
+		<xs:sequence>
+			<xs:element name="id_id" type="xs:decimal" minOccurs="0" maxOccurs="unbounded"/>
+			<xs:element name="businessProcess" type="xs:decimal" minOccurs="0" maxOccurs="unbounded"/>
+			<xs:element name="uri" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
+	</xs:sequence>
+</xs:complexType>
+<xs:complexType name="AvailableResourceFilter">
+		<xs:sequence>
+			<xs:element name="id_idFilter" type="xs:string" minOccurs="0" maxOccurs="1"/>
+			<xs:element name="businessProcessFilter" type="xs:string" minOccurs="0" maxOccurs="1"/>
+			<xs:element name="uriFilter" type="xs:string" minOccurs="0" maxOccurs="1"/>
+	</xs:sequence>
+</xs:complexType>
+null
+null
+null
+null
+null
+null
+null
+null
+null
+null
+null
+<xs:simpleType name="smartIPMRef" id="smartIPMRefID"><xs:annotation><xs:documentation>smartIPM</xs:documentation></xs:annotation><xs:restriction base="xs:long"><xs:minInclusive value="0"/></xs:restriction></xs:simpleType>
+</xs:schema>
