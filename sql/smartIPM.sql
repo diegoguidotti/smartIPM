@@ -54,3 +54,27 @@ CREATE TABLE model_stage
 );
 
 
+--------------------------------------------------------------------
+-- Added 24.04.2015
+--------------------------------------------------------------------
+
+CREATE TABLE weather_data_tmp
+(
+  id_weather_data_tmp serial NOT NULL,
+  id_weather_station integer NOT NULL,
+  time_ref timestamp with time zone,
+  tmin double precision,
+  tavg double precision,
+  tmax double precision,
+  lwtime double precision,
+  hravg double precision,
+  psum double precision,
+  rsum double precision,
+  wavg double precision,
+  CONSTRAINT weather_data_tmp_pkey PRIMARY KEY (id_weather_data_tmp)
+)
+WITH (
+  OIDS=FALSE
+);
+ALTER TABLE weather_data_tmp
+  OWNER TO postgres;
