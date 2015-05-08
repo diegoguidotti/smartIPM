@@ -136,7 +136,7 @@ class APIManager {
 			$r3->any('/api/weather-scenario-simple/', function() use ($db) {
 				
 				$body = file_get_contents("php://input");
-				
+
 				$obj = simplexml_load_string($body);
 				
 				$startTime    = $obj->startTime;
@@ -148,13 +148,22 @@ class APIManager {
 				//print_r($obj);
 				$res_data = $this->getWeatherData($obj);
 				
+				$lat = "";
+				$lon = "";
+				if(isset($obj->longitude)){		
+					$lon = $obj->longitude;
+				}
+				if(isset($obj->latitude)){		
+					$lat = $obj->latitude;
+				}
+
+				$aWField = $this->getWeatherParameter($obj);
+				$aWCode  = $this->getWeatherParameter($obj,false);
+
 				if( $res_data['ok'] )
 					{
 						$outcsv = "";
 						
-						$aWField = $this->getWeatherParameter($obj);
-						$aWCode  = $this->getWeatherParameter($obj,false);
-
 						for( $r = 0; $r < $res_data['rowCount']; $r++ )
 							{
 								$outcsv .= $res_data['data'][$r]['time_ref'] . $toSeparator;
@@ -167,20 +176,8 @@ class APIManager {
 											$outcsv .= $res_data['data'][$r][$aWField[$nF]] . $blSeparator;
 										
 									}
-// 								$outcsv .= $res_data['data'][$r]['tmin'] . $toSeparator;
-// 								$outcsv .= $res_data['data'][$r]['tmax'] . $blSeparator; 
 							}
 						
-						$lat="";
-						$lon="";
-						if(isset($obj->longitude)){		
-							$lon=$obj->longitude;
-						}
-						if(isset($obj->latitude)){		
-							$lat=$obj->latitude;
-						}
-	
-
 						header('Content-type: application/xml');
 						$xml  = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>';
 						$xml .= '			<ns3:WeatherScenarioSimpleResponseMessage xmlns:ns2="http://www.limetri.eu/schemas/ygg" xmlns:ns3="http://www.fispace.eu/domain/ag">';
@@ -222,10 +219,51 @@ class APIManager {
 					}
 				
 				return $xml;
-
 			});
 			
+			$r3->any('/api/run-model/', function() use ( $db ) {
+				$body = file_get_contents("php://input");
+				
+				$obj = simplexml_load_string($body);
+				
+				if( isset($obj->WeatherData->WeatherScenarioSimpleResponseMessage) )
+					{
+						$objWeather = $obj->WeatherData->WeatherScenarioSimpleResponseMessage;
+						$aField = $this->getWeatherParameter($obj->WeatherData->WeatherScenarioSimpleResponseMessage);
+						//print_r( $aField );
+					}
+				elseif( isset($obj->WeatherData->capabilities) )
+					{
+						$uri = $obj->WeatherData->capabilities->uri;
+						$weather_obj = $obj->WeatherData->capabilities->payload->WeatherScenarioSimpleRequestMessage;
+						
+						$xml = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>';
+						$xml .= '<ns3:WeatherScenarioSimpleRequestMessage xmlns:ns2="http://www.limetri.eu/schemas/ygg" xmlns:ns3="http://www.fispace.eu/domain/ag">';
+						$xml .= '	<latitude>'.$weather_obj->latitude.'</latitude>';
+						$xml .= '	<longitude>'.$weather_obj->longitude.'</longitude>';
+						$xml .= '	<startTime>'.$weather_obj->startTime.'</startTime>';
+						$xml .= '	<endTime>'.$weather_obj->endTime.'</endTime>';
+						$xml .= '	<weatherVariable>'.$weather_obj->weatherVariable.'</weatherVariable>';
+						$xml .= '</ns3:WeatherScenarioSimpleRequestMessage>';
+						
+						//echo $xml;
+						$body = $this->fetchUrl($uri, $xml);
+						$objWeather = simplexml_load_string($body);
+						//print_r($objWeather);
+					}
+				
+				$objModel = $obj->PestModel;
+				$aModel = (array) $objModel;
+				
+				// get the weather value from the WeatherScenarioSimpleResponseMessage
+				$value = $objWeather->values;
+				
+				$aWeather = $this->weatherCSV2Array($value);
 
+				$aResult = $this->runPestModel($aWeather, $aModel);
+				print_r( $aResult );
+			});
+			
 			$r3->any('/api/diego/*/*', function($var1="0", $var2="0") use ($db) {
 									
 					$body = file_get_contents("php://input");
@@ -244,6 +282,49 @@ class APIManager {
 					return '{"ok": false, "msg": "Unvalid request", "url": '.json_encode($url).'}';
 			});
 		}
+	
+	
+	public function fetchUrl($url, $request, $debug=false){
+		$ret_dbg="";
+		$url= trim($url);
+		$ch = curl_init();
+		curl_setopt($ch, CURLOPT_URL,$url);
+		curl_setopt($ch, CURLOPT_USERAGENT, 'cURL Request');
+		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+
+			
+		//curl_setopt($ch, CURLOPT_POST, 1);
+		//curl_setopt($ch, CURLOPT_POSTFIELDS,$vars);  //Post Fields
+		curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+		curl_setopt($ch, CURLOPT_VERBOSE, 1);
+		curl_setopt($ch, CURLOPT_HEADER, 1);
+		curl_setopt($ch, CURLOPT_POSTFIELDS, $request);
+		
+		$headers = array();
+		//$headers[] = 'X-Auth-Token: '.$this->accessToken;
+		$headers[] = 'Content-Type: application/xml';
+		$headers[] = 'Accept: application/xml';
+		//$headers[] = 'Authorization: Bearer '.$this->accessToken;
+	
+		curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+		$response = curl_exec ($ch);
+
+		// Then, after your curl_exec call:
+		$header_size = curl_getinfo($ch, CURLINFO_HEADER_SIZE);
+		$header = substr($response, 0, $header_size);
+		$body = substr($response, $header_size);
+
+		curl_close ($ch);
+		if($debug){
+			$ret_dbg.='<h3>Header</h3><pre>'.$header.'</pre>';
+			$ret_dbg.='<h3>Body</h3><pre>'.$body.'</pre>';
+			return $ret_dbg;
+		}
+		else{
+			return  $body;
+		}
+	}
+
 	
 	public function getWeatherStations($obj)
 	{
@@ -296,7 +377,7 @@ class APIManager {
 				$q  = "select $what time_ref from weather_data where id_weather_station = :station $where";
 				$var[':station'] = $res['data'][0]['id_weather_station'];
 				$res_data = $this->db->select($q, $var);
-				echo $this->db->getSQL($q,$var);
+				//echo "getWeatherData: " . $this->db->getSQL($q,$var);
 				
 				if( $res_data['rowCount'] == 0 )
 					$res_data = array('ok' => false, 'data' => array(), 'message' => "No data available");
@@ -333,8 +414,39 @@ class APIManager {
 					$aWField[] = $weatherCode;
 			}
 		return $aWField;
-		
 	}
+
+	public function weatherCSV2Array($value)
+	{
+		// transform the weather value from string to array
+		$value = substr($value, 0, strlen($value)-3);
+		$aWeather = explode(":::", $value);
+		
+		for( $n = 0; $n < count($aWeather); $n++ )
+			{
+				$aWeather[$n] = explode(";", $aWeather[$n]);
+			}
+		
+		return $aWeather;
+	}
+	
+	public function runPestModel($aWeather, $aModel)
+	{
+		$Tsum = 0;
+		
+		$lt = $aModel['lowerThreshold'];
+		
+		for( $w = 0; $w < count($aWeather); $w++ )
+			{
+				$temp = $aWeather[$w][1];
+				
+				if( $temp > $lt )
+					$Tsum += $temp-$lt;
+			}
+		
+		return array('ok'=> true, 'day_degree' => $Tsum, 'message' => 'The model has been runned successully!');
+	}
+	
 }
 
 	
