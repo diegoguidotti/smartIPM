@@ -133,7 +133,9 @@ class APIManager {
 				}
 			});
 
-			$r3->any('/api/weather-scenario-simple/', function() use ($db) {
+			$api=$this;
+
+			$r3->any('/api/weather-scenario-simple/', function() use ($db, $api) {
 				
 				$body = file_get_contents("php://input");
 
@@ -146,7 +148,7 @@ class APIManager {
 				$decSeparator = ".";
 				
 				//print_r($obj);
-				$res_data = $this->getWeatherData($obj);
+				$res_data = $api->getWeatherData($obj);
 				
 				$lat = "";
 				$lon = "";
@@ -157,8 +159,8 @@ class APIManager {
 					$lat = $obj->latitude;
 				}
 
-				$aWField = $this->getWeatherParameter($obj);
-				$aWCode  = $this->getWeatherParameter($obj,false);
+				$aWField = $api->getWeatherParameter($obj);
+				$aWCode  = $api->getWeatherParameter($obj,false);
 
 				if( $res_data['ok'] )
 					{
@@ -177,8 +179,9 @@ class APIManager {
 										
 									}
 							}
+						$api->setHeaders();
+
 						
-						header('Content-type: application/xml');
 						$xml  = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>';
 						$xml .= '			<ns3:WeatherScenarioSimpleResponseMessage xmlns:ns2="http://www.limetri.eu/schemas/ygg" xmlns:ns3="http://www.fispace.eu/domain/ag">';
 						$xml .= '				<latitude>'.$lat.'</latitude>';
@@ -198,7 +201,7 @@ class APIManager {
 					}
 				else
 					{
-						header('Content-type: application/xml');
+						$api->setHeaders();
 						$xml  = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>';
 						$xml .= '			<ns3:WeatherScenarioSimpleResponseMessage xmlns:ns2="http://www.limetri.eu/schemas/ygg" xmlns:ns3="http://www.fispace.eu/domain/ag">';
 						$xml .= '				<latitude>'.$lat.'</latitude>';
@@ -283,7 +286,10 @@ class APIManager {
 			});
 		}
 	
-	
+	public function setHeaders(){
+		header('Access-Control-Allow-Origin:*');
+		header('Content-type: application/xml');
+	}
 	public function fetchUrl($url, $request, $debug=false){
 		$ret_dbg="";
 		$url= trim($url);
