@@ -166,7 +166,7 @@
 
 		$html='test Api 2';
 
-		$html.='<script src="js/smartIPM.js"></script><div id="test_api"></div>';
+		$html.='<script src="js/smartIPM.js"></script><div id="test_api2"></div>';
 		$html.="<script>jQuery(function(){testApi2();});</script>";	
 
 

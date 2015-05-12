@@ -1,3 +1,9 @@
+/////////////////////////////////////////////////////////////////////////////
+// testApi
+// ======================
+// This function shows the weather data getted from the function showWeatherData()
+/**
+*/
 function testApi(){
 
 	console.log('api');
@@ -13,6 +19,12 @@ function testApi(){
 
 }
 
+/////////////////////////////////////////////////////////////////////////////
+// testApi2
+// ======================
+// This function shows the weather data
+/**
+*/
 function testApi2(){
 
 	console.log('api2');
@@ -23,18 +35,42 @@ function testApi2(){
 	
 	data_from = '2015-01-01T00:00:00';
 	data_to   = '2015-02-28T00:00:00';
-	server    = 'localhost';	//172.16.1.165
-	//zserver    = '172.16.1.165';
+	server    = 'localhost';
+	//server    = '172.16.1.165';
+
 	aWVar = Array('0 0 0');
 	
 	xml = makeXML(lat, lon, data_from, data_to, aWVar);
 	
+
 	xmld = getWeatherData(server, xml);
-	
-	//jQuery('#test_api').text(xml);
+  jQuery(document).ajaxStop(function () {
+		console.log("main");
+		console.log(xmldata);
+		val = jQuery(xmldata).find('values').text();
+		
+		aVal = CSV2array( val );
+		
+		html = array2Table( aVal );
+		
+		console.log(aVal);
+		jQuery('#test_api2').html(html);
+  });	
 
 }
 
+/////////////////////////////////////////////////////////////////////////////
+// makeXML
+// ======================
+// This function create a valid xml starting from imput parameters
+/**
+\param lat  latitude
+\param lon  longitude
+\param data_from  start date
+\param data_to  end date
+\param aWVar   array with weather parameters
+\return xml 
+*/
 function makeXML( lat, lon, data_from, data_to, aWVar ){
 	xml = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>';
 	xml += '<ns3:WeatherScenarioSimpleRequestMessage xmlns:ns2="http://www.limetri.eu/schemas/ygg" xmlns:ns3="http://www.fispace.eu/domain/ag">'; 
@@ -53,6 +89,16 @@ function makeXML( lat, lon, data_from, data_to, aWVar ){
 }
 
 var xmldata;
+
+/////////////////////////////////////////////////////////////////////////////
+// getWeatherData
+// ======================
+// This function get the weather daily data
+/**
+\param server  server
+\param xml  valid xml generated from makeXML function
+\return xml with the daily data
+*/
 function getWeatherData( server, xml ){
 	jQuery.ajax({
     type: 'POST',
@@ -63,14 +109,68 @@ function getWeatherData( server, xml ){
     success: function(data){
 				xmldata = data;
         console.log("device control succeeded");
-				console.log(data);
-				
+				//console.log(data);
+				return data;
     },
     error: function(){
         console.log("Device control failed");
     },
     processData: false
-});
+  });
+}
+
+/////////////////////////////////////////////////////////////////////////////
+// CSV2array
+// ======================
+// This function convert a csv to a multidimensional array
+/**
+\param csv  with ';' as separator and ':::' as row separator
+\return aVal multidimensional array.
+*/
+function CSV2array( csv ) {
+	aVal = csv.split(':::');
+	
+	for( n = 0; n < aVal.length; n++ )
+		{
+			aVal[n] = aVal[n].split(';');
+		}
+	
+	return aVal
+}
+
+/////////////////////////////////////////////////////////////////////////////
+// array2Table
+// ======================
+// This function convert the multidimensional array into html table.
+/**
+\param aVal multidimensional array.
+\return html
+*/
+function array2Table( aVal ) {
+	html = "";
+	
+	nRow = aVal.length;
+	nCol = 0;
+	if( nRow > 0 )
+	{
+		nCol = aVal[0].length;
+		
+		html += "<table>";
+		html += "<tbody>";
+		for( nR = 0; nR < nRow-1; nR++ )
+			{
+				html += "<tr>";
+				for( nC = 0; nC < nCol; nC++ )
+					{
+						html += "<td>"+aVal[nR][nC]+"</td>";
+					}
+				html += "</tr>";
+			}
+		html += "</tbody>";
+		html += "</table>";
+	}
+	
+	return html;
 }
 
 //simple test on test api
