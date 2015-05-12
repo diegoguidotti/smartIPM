@@ -35,41 +35,48 @@
 	$aPage['nav'][0]['link']='?sect=info';
 
 	//$body.='res: '.$ret['ok'].'|msg:'.$ret['message'].'|isAUt'.$login->isAut();
-	if(!$login->isAut()){
-		$aPage['navRight'][0]['title']='Login';
-		$aPage['navRight'][0]['link']='?do_login=true';
-	}
-	else{
-		$aPage['navRight'][0]['title']=' Logout';
-		$aPage['navRight'][0]['link']='?do_logout=true';
-
-		$aPage['nav'][1]['title']='Test Oauth2';
-		$aPage['nav'][1]['link']='?sect=test_user';
-		//$aPage['nav'][2]['title']='Test DBMNG';
-		//$aPage['nav'][2]['link']='?sect=test_dbmng';
-		$aPage['nav'][3]['title']='Test API';
-		$aPage['nav'][3]['link']='?sect=test_api';
-
-
-
-		//$body.='Hi '.$login->getUserNameFI()."!";
-
-		if(isset($_REQUEST['sect'])){
-
-			if($_REQUEST['sect']=='test_user'){
-				$body.=testUser($login);
-			}
-			else if($_REQUEST['sect']=='test_dbmng'){
-				$body.=testDbmng($app);
-			}
-			else if($_REQUEST['sect']=='test_api'){
-				$body.=testApi($app);
-			}
+	if(!$login->isAut())
+		{
+			$aPage['navRight'][0]['title']='Login';
+			$aPage['navRight'][0]['link']='?do_login=true';
 		}
-		else{
-			$body.=getHome();
+	else
+		{
+			$aPage['navRight'][0]['title']=' Logout';
+			$aPage['navRight'][0]['link']='?do_logout=true';
+
+			$aPage['nav'][1]['title']='Test Oauth2';
+			$aPage['nav'][1]['link']='?sect=test_user';
+			//$aPage['nav'][2]['title']='Test DBMNG';
+			//$aPage['nav'][2]['link']='?sect=test_dbmng';
+			$aPage['nav'][3]['title']='Test API';
+			$aPage['nav'][3]['link']='?sect=test_api';
+
+			$aPage['nav'][4]['title']='Test API 2';
+			$aPage['nav'][4]['link']='?sect=test_api2';
+
+			//$body.='Hi '.$login->getUserNameFI()."!";
+
+			if(isset($_REQUEST['sect']))
+				{
+					if($_REQUEST['sect']=='test_user'){
+						$body .= testUser($login);
+					}
+					else if($_REQUEST['sect']=='test_dbmng'){
+						$body .= testDbmng($app);
+					}
+					else if($_REQUEST['sect']=='test_api'){
+						$body .= testApi($app);
+					}
+					else if($_REQUEST['sect']=='test_api2'){
+						$body .= testApi2($app);
+					}
+				}
+			else
+				{
+					$body .= getHome();
+				}
 		}
-	}
 
 	$aPage['content']=$body;
     $layout = new Dbmng\Layout($aPage);
@@ -155,4 +162,15 @@
 		return $html;
 	}
 
+	function testApi2($app){
+
+		$html='test Api 2';
+
+		$html.='<script src="js/smartIPM.js"></script><div id="test_api"></div>';
+		$html.="<script>jQuery(function(){testApi2();});</script>";	
+
+
+
+		return $html;
+	}
 ?>
