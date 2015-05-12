@@ -24,7 +24,7 @@ function testApi2(){
 	data_from = '2015-01-01T00:00:00';
 	data_to   = '2015-02-28T00:00:00';
 	server    = 'localhost';	//172.16.1.165
-	//server    = '172.16.1.165';
+	//zserver    = '172.16.1.165';
 	aWVar = Array('0 0 0');
 	
 	xml = makeXML(lat, lon, data_from, data_to, aWVar);
