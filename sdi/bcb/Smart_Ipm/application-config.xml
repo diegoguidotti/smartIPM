@@ -37,53 +37,31 @@
 	
 			
 	<!-- BCM to CSB -->
-	
-	
 	<!-- bcmSyncServiceHandlers: Map<String, IRequestXmlHandler>; string is the serviceId, used as part of the service path http(s)://<server>:<port>/<webApp>/callSyncService/{serviceId} -->
 	<!--    IRequestXmlHandler instances will usually be SendRequestToCSBXmlHandler -->
-	<util:map id="bcmSyncServiceHandlers">
-	    <!-- Use the following for testing the bcm->csb request/response mechanism, this loops back through the csb->bcm request/response and can be tested with a POSTer -->
-	    <!-- 
-	    <entry key="loopback">
-	        <bean class="com.ibm.cbbridge.impl.b2c.SendRequestToCSBXmlHandler">
-				<property name="componentName" value = "eu.fispace.bcm.greenhouse.loopback"/>
-	            <property name="respondingComponentName" value = "eu.fispace.bcm.greenhouse"/>
-				<property name="responseMarshaller">
-					<bean class="org.springframework.oxm.castor.CastorMarshaller"> 							
-						<property name="mappingLocation" value="/WEB-INF/app/B2BAdviceEntityInfo_Mapping.xml" />
-					</bean>			
-				</property>
-				<property name="requestUnmarshaller">
-					<bean class="org.springframework.oxm.castor.CastorMarshaller"> 							
-						<property name="mappingLocation" value="/WEB-INF/app/B2BServiceRequestAdviceEntityInfo_Mapping.xml" />
-					</bean>			
-				</property>					            
-	        </bean>
-	    </entry>
-	     -->
+	<util:map id="bcmSyncServiceHandlers">	   
 	</util:map>
 		
 	
 	<!-- CSB to BCM -->
-
 	<!--  marshaller for creating a new shipment event-->
 	<bean id="createMarshaller" class="org.springframework.oxm.castor.CastorMarshaller"> 							
-		<property name="mappingLocation" value="CreateWeatherCondition_Mapping.xml" />
+		<property name="mappingLocation" value="CreateWeatherScenarioSimple_Mapping.xml" />
 	</bean>
 	
 	<!-- csbQueueMessagePojoHandlerConfiguration: Map<Class, IPojoHandler>; class is the POJO's class for which the handler should be used -->
 	<!--    IPojoHandler instances will usually be: ChainPojoHandler, CreateBEPojoHandler, PassEventToBCMPojoHandler -->
 	<util:map id="csbQueueMessagePojoHandlerConfiguration"  key-type="java.lang.Class">
-		<entry key="eu.fispace.api.ag.ProvideWeatherConditionsRequestMessage">
+		<entry key="eu.fispace.api.ag.WeatherScenarioSimpleRequestMessage">
 			<bean class="com.ibm.cbbridge.impl.ChainPojoHandler">
 				<property name="handlers">
 					<list>
 					    <bean class="com.ibm.cbbridge.impl.c2b.CreateBEPojoHandler">
-                            <property name="marshaller" ref="createMarshaller"/>
-                            <property name="beName" value="WeatherCondition"/>
-                        </bean> 
+                  <property name="marshaller" ref="createMarshaller"/>
+                  <property name="beName" value="WeatherScenarioSimple"/>
+              </bean> 
 						<bean class="com.ibm.cbbridge.impl.c2b.PassEventToBCMPojoHandler">
-							<property name="eventName" value="ProvideWeatherConditionsRequestMessage"/>
+							<property name="eventName" value="WeatherScenarioSimpleRequestMessage"/>
 							<property name="marshaller" ref="jaxb2Marshaller"/>							
 						</bean>
 					</list>
@@ -107,7 +85,7 @@
 	<!--  Define CSB Request Listeners -->
 	<!--  Instances of ICSBRequestListener: these will usually be AppCSBRequestListener instance  -->
 	<bean class="com.ibm.cbbridge.app.impl.AppCSBRequestListener">
-		<property name="componentName" value = "eu.fispace.bcm.wc"/>
+		<property name="componentName" value = "eu.fispace.bcm.ag"/>
 	</bean>
 	<!-- End Application Wiring -->
 

@@ -35,15 +35,15 @@ function testApi2(){
 	
 	data_from = '2015-01-01T00:00:00';
 	data_to   = '2015-02-28T00:00:00';
-	server    = 'localhost';
-	//server    = '172.16.1.165';
+	url='http://172.16.1.109/smartIPM/api/weather-scenario-simple';
+	//url='http://www.smartipm.eu/smartIPM/api/weather-scenario-simple';
 
 	aWVar = Array('0 0 0');
 	
 	xml = makeXML(lat, lon, data_from, data_to, aWVar);
 	
 
-	xmld = getWeatherData(server, xml);
+	xmld = getWeatherData(url, xml);
   jQuery(document).ajaxStop(function () {
 		console.log("main");
 		console.log(xmldata);
@@ -58,6 +58,7 @@ function testApi2(){
   });	
 
 }
+
 
 /////////////////////////////////////////////////////////////////////////////
 // makeXML
@@ -99,10 +100,16 @@ var xmldata;
 \param xml  valid xml generated from makeXML function
 \return xml with the daily data
 */
-function getWeatherData( server, xml ){
+
+
+
+function getWeatherData( url, xml ){
 	jQuery.ajax({
     type: 'POST',
-    url: 'http://'+server+'/smartIPM/api/weather-scenario-simple',
+    url: url,
+		xhrFields: {
+      withCredentials: true
+   },
     contentType: 'application/xml',
     data: xml,
     dataType: 'xml',
