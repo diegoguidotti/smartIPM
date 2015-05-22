@@ -268,7 +268,31 @@ class APIManager {
 			});
 			
 			$r3->any('/api/diego/*/*', function($var1="0", $var2="0") use ($db) {
-									
+
+/*
+Accept-Encoding:gzip,deflate,sdch
+Accept-Language:it-IT,it;q=0.8,en-US;q=0.6,en;q=0.4
+Cache-Control:max-age=0
+Connection:keep-alive
+Content-Length:1
+Content-Type:application/xml
+Cookie:SESSa63a79212083f4558030a2a7be00e3c5=XkNPqvXSGilN5iztfW-DB3S0Te3izibD1i9oqkOWvvA; SESS8fd085a2df7703a3f235e7a0101db87b=6SdCERauk5jeY3BaMmI2mmhJcF0lHEsNkEk6Ad51YiA; PHPSESSID=97bepn41lc3f2r2nk2vlbq9mu7
+Host:localhost
+Origin:http://localhost
+Referer:http://localhost/smartIPM/?sect=test_api2
+User-Agent:Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/534.30 (KHTML, like Gecko) Chrome/12.0.742.91 Safari/534.30
+X-Requested-With:XMLHttpRequest
+*/
+/*
+
+					header('Access-Control-Allow-Origin: *');
+					header('Access-Control-Allow-Methods: GET, POST, PUT');
+					header("Access-Control-Allow-Headers: X-Requested-With, Origin, X-Csrftoken, Content-Type, Cache-Control, Accept, Cookie, Connection,Access-Control-Allow-Origin, Accept-Charset, Accept-Encoding, Host, Content-Length");
+					header('Access-Control-Max-Age: 86400');
+*/
+
+
+
 					$body = file_get_contents("php://input");
 					$obj=json_decode($body);
 					$pas="no";
@@ -292,11 +316,14 @@ class APIManager {
 		header('Access-Control-Allow-Methods: GET, POST, PUT');
 		header('Access-Control-Allow-Headers: Content-Type');
 */
-
+/*
 		header("Access-Control-Allow-Origin: *");
-  	header("Access-Control-Allow-Headers: access, contentType");
+  	header("Access-Control-Allow-Headers: X-Requested-With, Origin, X-Csrftoken, Content-Type, Accept, Access-Control-Allow-Origin");
   	header("Access-Control-Allow-Methods: GET, POST, PUT, OPTIONS");
   	header("Access-Control-Allow-Credentials: true");
+*/
+ 		header('Access-Control-Allow-Origin: *');
+  	header("Access-Control-Allow-Headers: X-Requested-With, Origin, X-Csrftoken, Content-Type, Accept, Access-Control-Allow-Origin");
 
 
 

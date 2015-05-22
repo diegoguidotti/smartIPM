@@ -35,8 +35,37 @@ function testApi2(){
 	
 	data_from = '2015-01-01T00:00:00';
 	data_to   = '2015-02-28T00:00:00';
-	url='http://172.16.1.109/smartIPM/api/weather-scenario-simple';
+	url='http://localhost/smartIPM/api/weather-scenario-simple';
 	//url='http://www.smartipm.eu/smartIPM/api/weather-scenario-simple';
+
+if(false){
+	jQuery.ajax({
+    type: 'POST',
+    url: 'http://172.16.1.109/smartIPM/api/diego/aa/bb',
+    data: 'a',
+		contentType: 'application/xml',
+		 xhrFields: {
+				withCredentials: true
+			},
+			crossDomain: true,
+    success: function(data){
+				alert(data);
+				xmldata = data;
+        console.log(data);
+				//console.log(data);
+				return data;
+    },
+    error: function(){
+				alert('err');
+        console.log("Device control failed");
+    }
+   
+  });
+}
+
+
+
+if(true){
 
 	aWVar = Array('0 0 0');
 	
@@ -56,6 +85,7 @@ function testApi2(){
 		console.log(aVal);
 		jQuery('#test_api2').html(html);
   });	
+}
 
 }
 
@@ -110,6 +140,11 @@ function getWeatherData( url, xml ){
 		xhrFields: {
       withCredentials: true
    },
+ headers: {
+    // Set any custom headers here.
+    // If you set any non-simple headers, your server must include these
+    // headers in the 'Access-Control-Allow-Headers' response header.
+  },
     contentType: 'application/xml',
     data: xml,
     dataType: 'xml',
