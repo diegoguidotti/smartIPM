@@ -286,10 +286,17 @@ X-Requested-With:XMLHttpRequest
 /*
 
 					header('Access-Control-Allow-Origin: *');
-					header('Access-Control-Allow-Methods: GET, POST, PUT');
+					header('Access-Control-Allow-Methods: GET, POST, PUT, OPTIONS');
 					header("Access-Control-Allow-Headers: X-Requested-With, Origin, X-Csrftoken, Content-Type, Cache-Control, Accept, Cookie, Connection,Access-Control-Allow-Origin, Accept-Charset, Accept-Encoding, Host, Content-Length");
 					header('Access-Control-Max-Age: 86400');
+
 */
+header("Access-Control-Allow-Origin: *");
+header("Access-Control-Allow-Credentials: true ");
+header("Access-Control-Allow-Methods: OPTIONS, GET, POST");
+header("Access-Control-Allow-Headers: Content-Type, Depth, User-Agent, X-File-Size, 
+    X-Requested-With, If-Modified-Since, X-File-Name, Cache-Control, Origin");
+					header('Access-Control-Max-Age: 86400');
 
 
 

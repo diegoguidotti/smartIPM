@@ -38,16 +38,18 @@ function testApi2(){
 	url='http://localhost/smartIPM/api/weather-scenario-simple';
 	//url='http://www.smartipm.eu/smartIPM/api/weather-scenario-simple';
 
-if(false){
+if(true){
 	jQuery.ajax({
     type: 'POST',
     url: 'http://172.16.1.109/smartIPM/api/diego/aa/bb',
     data: 'a',
 		contentType: 'application/xml',
+
 		 xhrFields: {
 				withCredentials: true
 			},
 			crossDomain: true,
+
     success: function(data){
 				alert(data);
 				xmldata = data;
@@ -56,7 +58,7 @@ if(false){
 				return data;
     },
     error: function(){
-				alert('err');
+				
         console.log("Device control failed");
     }
    
@@ -65,7 +67,7 @@ if(false){
 
 
 
-if(true){
+if(false){
 
 	aWVar = Array('0 0 0');
 	
