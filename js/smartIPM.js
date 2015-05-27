@@ -38,18 +38,11 @@ function testApi2(){
 	url='http://localhost/smartIPM/api/weather-scenario-simple';
 	//url='http://www.smartipm.eu/smartIPM/api/weather-scenario-simple';
 
-if(true){
+if(false){
 	jQuery.ajax({
     type: 'POST',
     url: 'http://172.16.1.109/smartIPM/api/diego/aa/bb',
     data: 'a',
-		contentType: 'application/xml',
-
-		 xhrFields: {
-				withCredentials: true
-			},
-			crossDomain: true,
-
     success: function(data){
 				alert(data);
 				xmldata = data;
@@ -67,7 +60,7 @@ if(true){
 
 
 
-if(false){
+if(true){
 
 	aWVar = Array('0 0 0');
 	
@@ -139,14 +132,6 @@ function getWeatherData( url, xml ){
 	jQuery.ajax({
     type: 'POST',
     url: url,
-		xhrFields: {
-      withCredentials: true
-   },
- headers: {
-    // Set any custom headers here.
-    // If you set any non-simple headers, your server must include these
-    // headers in the 'Access-Control-Allow-Headers' response header.
-  },
     contentType: 'application/xml',
     data: xml,
     dataType: 'xml',
