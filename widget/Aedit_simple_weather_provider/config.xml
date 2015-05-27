@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Template xmlns="http://wirecloud.conwet.fi.upm.es/ns/template#">
+
+    <Catalog.ResourceDescription>
+        <Vendor>Aedit</Vendor>
+        <Name>SimpleWheatherProvider</Name>
+        <DisplayName>Simple Wheather Provider</DisplayName>
+        <Author>Diego Guidotti, Michele Mammini</Author>
+        <Version>1</Version>
+        <Mail>diego.guidotti@gmail.com</Mail>
+        <Description>A widget to access weather data from a Simple Weather Provider</Description>
+        <ImageURI>images/logo.png</ImageURI>
+        <iPhoneImageURI>images/logo.png</iPhoneImageURI>
+        <WikiURI>http://conwet.fi.upm.es/docs/display/wirecloud/Widgets</WikiURI>
+    </Catalog.ResourceDescription>
+
+    <Platform.Preferences>
+        <Preference name="url" type="text" description="Address to the SimpleWeatherProvider" label="URL" default="http://www.smartipm.eu/smartIPM/api/weather-scenario-simple"/>
+        <Preference name="latitude" type="text" description="Latitude" label="Latitude" default="43.35012"/>
+        <Preference name="longitude" type="text" description="Longitude" label="Longitude" default="10.52148"/>
+        <Preference name="start_date" type="text" description="Start Date" label="Start Date" default="2015-01-01T00:00:00"/>
+        <Preference name="end_date" type="text" description="End date" label="End Date" default="2015-02-28T00:00:00"/>
+    </Platform.Preferences>
+
+    <Platform.Wiring>
+        <OutputEndpoint name="outputValue" type="text" label="output" description="Input Value" friendcode="keyword"/>
+        <InputEndpoint  name="inputValue"  type="text" label="input"  description="Output Value" friendcode="keyword"/>
+    </Platform.Wiring>
+
+    <Platform.Link>
+        <XHTML
+            href="index.html"
+            contenttype="text/html"
+            cacheable="false"
+            use-platform-style="true"/>
+    </Platform.Link>
+
+    <Platform.Rendering width="5" height="12"/>
+</Template>
