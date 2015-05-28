@@ -1,0 +1,44 @@
+<?php
+
+/**
+ * 
+ * @author Diego Guidotti <diego.guidotti@gmail.com>
+ */
+
+namespace smartIPM;
+ 
+class ModelManager {
+
+	private $db;
+	private $aSetting;
+
+		
+    public function __construct($db, $aSetting)
+    {
+			$this->db=$db;
+			$this->aSetting=$aSetting;
+    }
+
+
+		public function exeApi($obj){
+			$q  = "select *  from model ";
+			$res_data = $this->db->select($q, Array());
+				
+			if( $res_data['rowCount'] == 0 )
+				$res_data = array('ok' => false, 'data' => array(), 'message' => "There are no model available");
+
+			return generateResponse($res_data);
+
+		}
+
+		public function generateResponse($aRes){
+			$xml = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>';
+
+
+			return $xml;
+			
+		}
+	
+
+}
+
