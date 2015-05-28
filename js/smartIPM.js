@@ -74,7 +74,7 @@ function testModel(){
 		'weatherVariable': ['0 0 0', '0 0 1'],
 		
 		//model variable
-		'lowerThreshold':10,
+		'lowerThreshold':12,
 		'upperThreshold':32, 
 		'requiredDayDegree':100,
 		'url_model': '/smartIPM/api/run-model',
@@ -115,7 +115,7 @@ function testModelRun(){
 		'weatherVariable': ['0 0 0'],
 		
 		//model variable
-		'lowerThreshold':10,
+		'lowerThreshold':12,
 		'upperThreshold':32, 
 		'requiredDayDegree':100,
 		'url_model': '/smartIPM/api/run-model',

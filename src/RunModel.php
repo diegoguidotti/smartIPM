@@ -1,0 +1,117 @@
+<?php
+
+/**
+ * 
+ * @author Diego Guidotti <diego.guidotti@gmail.com>
+ */
+
+namespace smartIPM;
+ 
+class RunModel {
+
+	private $db;
+	private $aSetting;
+
+		
+    public function __construct($db, $aSetting)
+    {
+			$this->db=$db;
+			$this->aSetting=$aSetting;
+    }
+
+
+		public function exeApi($obj){
+
+			if( isset($obj->WeatherData->WeatherScenarioSimpleResponseMessage) )
+					{
+						$objWeather = $obj->WeatherData->WeatherScenarioSimpleResponseMessage;						
+					}
+				elseif( isset($obj->WeatherData->capabilities) )
+					{
+						$uri = $obj->WeatherData->capabilities->uri;
+						$weather_obj = $obj->WeatherData->capabilities->payload->WeatherScenarioSimpleRequestMessage;
+						
+						$xml = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>';
+						$xml .= '<ns3:WeatherScenarioSimpleRequestMessage xmlns:ns2="http://www.limetri.eu/schemas/ygg" xmlns:ns3="http://www.fispace.eu/domain/ag">';
+						$xml .= '	<latitude>'.$weather_obj->latitude.'</latitude>';
+						$xml .= '	<longitude>'.$weather_obj->longitude.'</longitude>';
+						$xml .= '	<startTime>'.$weather_obj->startTime.'</startTime>';
+						$xml .= '	<endTime>'.$weather_obj->endTime.'</endTime>';
+						$xml .= '	<weatherVariable>'.$weather_obj->weatherVariable.'</weatherVariable>';
+						$xml .= '</ns3:WeatherScenarioSimpleRequestMessage>';
+						
+						//echo $xml;
+						$body = Utils::fetchUrl($uri, $xml);
+						$objWeather = simplexml_load_string($body);
+						//print_r($objWeather);
+					}
+				
+				$objModel = $obj->PestModel;
+				$aModel = (array) $objModel;
+				
+				// get the weather value from the WeatherScenarioSimpleResponseMessage
+				$value = $objWeather->values;
+				$aWeather = Utils::CSV2Array($value, $objWeather->blockSeparator, $objWeather->tokenSeparator);
+
+				$aResult = $this->runPestModel($aWeather, $aModel);
+
+				//print_r( $aResult );
+				if( $aResult['ok'] )
+					{
+						//print_r($obj);
+						$weather_obj = $obj->WeatherData->WeatherScenarioSimpleResponseMessage;
+						$model_obj   = $obj->PestModel;
+						
+						$outcsv = $aResult['day_degree'];
+						
+						$xml = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>';
+						$xml .= '<RunPestModelResponseMessage xmlns:ns2="http://www.limetri.eu/schemas/ygg" xmlns:ns3="http://www.fispace.eu/domain/ag" xmlns:nsipm="http://www.smartIPM.eu/schema">';
+						$xml .= '<WeatherData>';
+						$xml .= '<WeatherScenarioSimpleResponseMessage xmlns:ns2="http://www.limetri.eu/schemas/ygg" xmlns:ns3="http://www.fispace.eu/domain/ag">'; 
+						$xml .= '<latitude>'.$weather_obj->latitude.'</latitude>';
+						$xml .= '<longitude>'.$weather_obj->longitude.'</longitude>';
+						$xml .= '<startTime>'.$weather_obj->startTime.'</startTime>';
+						$xml .= '<endTime>'.$weather_obj->endTime.'</endTime>';
+						
+						for( $nV = 0; $nV < count($weather_obj->weatherVariable); $nV++ )
+						{
+							$xml .= '<weatherVariable>'.$weather_obj->weatherVariable[$nV].'</weatherVariable>';
+						}
+						$xml .= '</WeatherScenarioSimpleResponseMessage>';
+						$xml .= '</WeatherData>';
+						$xml .= '<PestModel>';
+						$xml .= '<lowerThreshold>'.$model_obj->lowerThreshold.'</lowerThreshold>';
+						$xml .= '<upperThreshold>'.$model_obj->upperThreshold.'</upperThreshold>';
+						$xml .= '<requiredDayDegree>'.$model_obj->requiredDayDegree.'</requiredDayDegree>';
+						$xml .= '<values>'.$outcsv.'</values>';
+						$xml .= '</PestModel>';
+						$xml .= '</RunPestModelResponseMessage>';
+					}
+				return $xml;
+		}
+
+
+
+	/* get an array return an array */
+	public function runPestModel($aWeather, $aModel)
+	{
+		$Tsum = 0;
+		
+		$lt = $aModel['lowerThreshold'];
+		
+		for( $w = 0; $w < count($aWeather); $w++ )
+			{
+				$temp = $aWeather[$w][1];
+				
+				if( $temp > $lt )
+					$Tsum += $temp-$lt;
+			}
+		
+		return array('ok'=> true, 'day_degree' => $Tsum, 'message' => 'The model has been runned successully!');
+	}
+
+
+	
+
+}
+
