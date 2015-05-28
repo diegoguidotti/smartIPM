@@ -107,18 +107,18 @@ function testModelRun(){
 
 	var options={
 		//weather data variable
-		'latitude': 43.35012,
-		'longitude': 10.52148,
-		'startTime': '2015-01-01T00:00:00',
-		'endTime': '2015-02-28T00:00:00',
-		'url_weather': '/smartIPM/api/weather-scenario-simple',
-		'weatherVariable': ['0 0 0'],
+		'latitude': jQuery('#latitude').val(),
+		'longitude': jQuery('#longitude').val(),
+		'startTime': jQuery('#startTime').val(),
+		'endTime': jQuery('#endTime').val(),
+		'url_weather': jQuery('#url_weather').val(),
+		'weatherVariable': Array((jQuery('#weatherVariable').val())),
 		
 		//model variable
-		'lowerThreshold':12,
-		'upperThreshold':32, 
-		'requiredDayDegree':100,
-		'url_model': '/smartIPM/api/run-model',
+		'lowerThreshold': jQuery('#lowerThreshold').val(),
+		'upperThreshold': jQuery('#upperThreshold').val(), 
+		'requiredDayDegree': jQuery('#requiredDayDegree').val(),
+		'url_model': jQuery('#url_model').val(),
 		
 		//output variable.
 		'div_element':'test_model'
