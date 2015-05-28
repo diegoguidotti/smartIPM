@@ -19,42 +19,80 @@ function testApi(){
 
 }
 
-/////////////////////////////////////////////////////////////////////////////
-// testApi2
-// ======================
-// This function shows the weather data
-/**
-*/
+
 function testApi2(){
 
-	console.log('api2');
-	
-	/* -------- input variable -------- */
-	lat = 43.35012;
-	lon = 10.52148;
-	
-	data_from = '2015-01-01T00:00:00';
-	data_to   = '2015-02-28T00:00:00';
-	url='http://localhost/smartIPM/api/weather-scenario-simple';
+	var options={
+		'latitude': 43.35012,
+		'longitude': 10.52148,
+		'startTime': '2015-01-01T00:00:00',
+		'endTime': '2015-02-28T00:00:00',
+		'url': '/smartIPM/api/weather-scenario-simple',
+		'weatherVariable': ['0 0 0', '0 0 1']
+	}
+
+	var form='<input name="latitude" id="latitude" value="'+options.latitude+'" />';
+	form+='<input name="longitude" id="longitude" value="'+options.longitude+'" />';
+	form+='<input name="startTime" id="startTime" value="'+options.startTime+'" />';
+	form+='<input name="endTime" id="endTime" value="'+options.endTime+'" />';
+	form+='<input name="url" id="url" value="'+options.url+'" />';
+	form+='<input name="weatherVariable" id="weatherVariable" value="'+(options.weatherVariable[0])+'" />';
+	form+='<button onClick="testApi2Run()">Update</button>';
+
+	jQuery('#form_test_api2').html(form);
 	//url='http://www.smartipm.eu/smartIPM/api/weather-scenario-simple';
 
+	
+	testApi2Run();
+
+}
+
+
+function testApi2Run(){
+
+		var options={
+		'latitude': jQuery('#latitude').val(),
+		'longitude': jQuery('#longitude').val(),
+		'startTime': jQuery('#startTime').val(),
+		'endTime': jQuery('#endTime').val(),
+		'url': jQuery('#url').val(),
+		'weatherVariable': Array((jQuery('#weatherVariable').val()))
+	}
+
+	runWSS(options);
+
+}
+
+/////////////////////////////////////////////////////////////////////////////
+// runWSS2
+// ======================
+// run a weather scanarion simple
+/**
+*/
+function runWSS(options){
+
+	
+	url=options.url;
+
+	console.log('api2 on url '+url);	
+
 	aWVar = Array('0 0 0');
+	xml = getXMLWSS(options);
+	console.log(xml);
 	
-	xml = makeXML(lat, lon, data_from, data_to, aWVar);
-	
+	var div_element='test_api2';
+	if(options.div_element){
+		div_element=options.div_element;
+	}
 
 	xmld = getWeatherData(url, xml);
   jQuery(document).ajaxStop(function () {
-		console.log("main");
 		console.log(xmldata);
-		val = jQuery(xmldata).find('values').text();
-		
-		aVal = CSV2array( val );
-		
-		html = array2Table( aVal );
-		
+		val = jQuery(xmldata).find('values').text();		
+		aVal = CSV2array( val );		
+		html = array2Table( aVal );		
 		console.log(aVal);
-		jQuery('#test_api2').html(html);
+		jQuery('#'+div_element).html(html);
   });	
 
 }
@@ -65,24 +103,20 @@ function testApi2(){
 // ======================
 // This function create a valid xml starting from imput parameters
 /**
-\param lat  latitude
-\param lon  longitude
-\param data_from  start date
-\param data_to  end date
-\param aWVar   array with weather parameters
+\param options a json containing all the needed data to generate the xml
 \return xml 
 */
-function makeXML( lat, lon, data_from, data_to, aWVar ){
+function getXMLWSS( options ){
 	xml = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>';
 	xml += '<ns3:WeatherScenarioSimpleRequestMessage xmlns:ns2="http://www.limetri.eu/schemas/ygg" xmlns:ns3="http://www.fispace.eu/domain/ag">'; 
-	xml += '<latitude>'+lat+'</latitude>';
-	xml += '<longitude>'+lon+'</longitude>';
-	xml += '<startTime>'+data_from+'</startTime>';
-	xml += '<endTime>'+data_to+'</endTime>';
+	xml += '<latitude>'+options.latitude+'</latitude>';
+	xml += '<longitude>'+options.longitude+'</longitude>';
+	xml += '<startTime>'+options.startTime+'</startTime>';
+	xml += '<endTime>'+options.endTime+'</endTime>';
 	
-	for( nV = 0; nV < aWVar.length; nV++ )
+	for( nV = 0; nV < options.weatherVariable.length; nV++ )
 	{
-		xml += '<weatherVariable>'+aWVar[nV]+'</weatherVariable>';
+		xml += '<weatherVariable>'+options.weatherVariable[nV]+'</weatherVariable>';
 	}
 	xml += '</ns3:WeatherScenarioSimpleRequestMessage>';
 	
@@ -116,8 +150,9 @@ function getWeatherData( url, xml ){
 				//console.log(data);
 				return data;
     },
-    error: function(){
+    error: function(e){
         console.log("Device control failed");
+				console.log(e);
     },
     processData: false
   });

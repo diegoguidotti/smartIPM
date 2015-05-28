@@ -17,26 +17,35 @@ function init(){
 	html+='<b>coordinates:</b>'+latitude+' '+longitude+'<br/>';
 	html+='<b>dates:</b>'+start_date+' - '+end_date+'<br/>';
 
+	aWeatherVariable = Array('0 0 0');
+	var options={
+		'latitude': latitude,
+		'longitude': longitude,
+		'startTime': start_date,
+		'endTime': end_date,
+		'url': url,
+		'weatherVariable': aWeatherVariable,
+		'div_element': 'content'
+	};
 	
-	aWVar = Array('0 0 0');
-	
-	xml = makeXML(latitude, longitude, start_date, end_date, aWVar);
-	console.log("aaaa");
-	html+=xml;
-	console.log("bbbb");
-
-	xmld = getWeatherData(url, xml);
-  jQuery(document).ajaxStop(function () {
-		console.log("main");
-		console.log(xmldata);
-		val = jQuery(xmldata).find('values').text();
-		
-		aVal = CSV2array( val );
-		
-		html += array2Table( aVal );		
-		console.log(aVal);
-		jQuery('#content').html(html);
-  });	
+	runWSS(options);
+// 	xml = makeXML(latitude, longitude, start_date, end_date, aWVar);
+// 	console.log("aaaa");
+// 	html+=xml;
+// 	console.log("bbbb");
+// 
+// 	xmld = getWeatherData(url, xml);
+//   jQuery(document).ajaxStop(function () {
+// 		console.log("main");
+// 		console.log(xmldata);
+// 		val = jQuery(xmldata).find('values').text();
+// 		
+// 		aVal = CSV2array( val );
+// 		
+// 		html += array2Table( aVal );		
+// 		console.log(aVal);
+// 		jQuery('#content').html(html);
+//   });	
 
 	
 
