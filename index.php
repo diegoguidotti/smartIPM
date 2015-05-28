@@ -55,6 +55,9 @@
 			$aPage['nav'][4]['title']='Test API 2';
 			$aPage['nav'][4]['link']='?sect=test_api2';
 
+			$aPage['nav'][5]['title']='Test Model';
+			$aPage['nav'][5]['link']='?sect=test_model';
+
 			//$body.='Hi '.$login->getUserNameFI()."!";
 
 			if(isset($_REQUEST['sect']))
@@ -70,6 +73,9 @@
 					}
 					else if($_REQUEST['sect']=='test_api2'){
 						$body .= testApi2($app);
+					}
+					else if($_REQUEST['sect']=='test_model'){
+						$body .= testModel($app);
 					}
 				}
 			else
@@ -167,6 +173,20 @@
 		$html='test Api 2';
 		$html.='<script src="js/smartIPM.js"></script><div id="form_test_api2"></div><div id="test_api2"></div>';
 		$html.="<script>jQuery(function(){testApi2();});</script>";	
+
+
+
+		return $html;
+	}
+
+	function testModel($app){
+
+		$html='test Model';
+		$html.='<script src="js/smartIPM.js"></script>
+						<p>Weather parameters</p><div id="form_test_weather"></div>
+						<p>Model parameters</p><div id="form_test_model"></div>
+						<p>Result</p><div id="test_model"></div>';
+		$html.="<script>jQuery(function(){testModel();});</script>";	
 
 
 

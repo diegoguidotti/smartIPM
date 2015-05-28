@@ -263,7 +263,39 @@ class APIManager {
 				$aWeather = $this->weatherCSV2Array($value);
 
 				$aResult = $this->runPestModel($aWeather, $aModel);
-				print_r( $aResult );
+				//print_r( $aResult );
+				if( $aResult['ok'] )
+					{
+						//print_r($obj);
+						$weather_obj = $obj->WeatherData->WeatherScenarioSimpleResponseMessage;
+						$model_obj   = $obj->PestModel;
+						
+						$outcsv = $aResult['day_degree'];
+						
+						$xml = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>';
+						$xml .= '<RunPestModelResponseMessage xmlns:ns2="http://www.limetri.eu/schemas/ygg" xmlns:ns3="http://www.fispace.eu/domain/ag" xmlns:nsipm="http://www.smartIPM.eu/schema">';
+						$xml .= '<WeatherData>';
+						$xml .= '<WeatherScenarioSimpleResponseMessage xmlns:ns2="http://www.limetri.eu/schemas/ygg" xmlns:ns3="http://www.fispace.eu/domain/ag">'; 
+						$xml .= '<latitude>'.$weather_obj->latitude.'</latitude>';
+						$xml .= '<longitude>'.$weather_obj->longitude.'</longitude>';
+						$xml .= '<startTime>'.$weather_obj->startTime.'</startTime>';
+						$xml .= '<endTime>'.$weather_obj->endTime.'</endTime>';
+						
+						for( $nV = 0; $nV < count($weather_obj->weatherVariable); $nV++ )
+						{
+							$xml .= '<weatherVariable>'.$weather_obj->weatherVariable[$nV].'</weatherVariable>';
+						}
+						$xml .= '</WeatherScenarioSimpleResponseMessage>';
+						$xml .= '</WeatherData>';
+						$xml .= '<PestModel>';
+						$xml .= '<lowerThreshold>'.$model_obj->lowerThreshold.'</lowerThreshold>';
+						$xml .= '<upperThreshold>'.$model_obj->upperThreshold.'</upperThreshold>';
+						$xml .= '<requiredDayDegree>'.$model_obj->requiredDayDegree.'</requiredDayDegree>';
+						$xml .= '<values>'.$outcsv.'</values>';
+						$xml .= '</PestModel>';
+						$xml .= '</RunPestModelResponseMessage>';
+					}
+				return $xml;
 			});
 			
 			$r3->any('/api/diego/*/*', function($var1="0", $var2="0") use ($db, $api) {

@@ -63,6 +63,108 @@ function testApi2Run(){
 
 }
 
+function testModel(){
+	var options={
+		//weather data variable
+		'latitude': 43.35012,
+		'longitude': 10.52148,
+		'startTime': '2015-01-01T00:00:00',
+		'endTime': '2015-02-28T00:00:00',
+		'url_weather': '/smartIPM/api/weather-scenario-simple',
+		'weatherVariable': ['0 0 0', '0 0 1'],
+		
+		//model variable
+		'lowerThreshold':10,
+		'upperThreshold':32, 
+		'requiredDayDegree':100,
+		'url_model': '/smartIPM/api/run-model',
+		
+		//output variable.
+		'div_element':'test_model'
+	}
+
+	var form='<input name="latitude" id="latitude" value="'+options.latitude+'" />';
+	form+='<input name="longitude" id="longitude" value="'+options.longitude+'" />';
+	form+='<input name="startTime" id="startTime" value="'+options.startTime+'" />';
+	form+='<input name="endTime" id="endTime" value="'+options.endTime+'" />';
+	form+='<input name="url_weather" id="url_weather" value="'+options.url_weather+'" />';
+	form+='<input name="weatherVariable" id="weatherVariable" value="'+(options.weatherVariable[0])+'" />';
+	form+='<button onClick="testModelRun()">Update</button>';
+	
+	var formm = '<input name="lowerThreshold" id="lowerThreshold" value="'+options.lowerThreshold+'" />';
+	formm += '<input name="upperThreshold" id="upperThreshold" value="'+options.upperThreshold+'" />';
+	formm += '<input name="requiredDayDegree" id="requiredDayDegree" value="'+options.requiredDayDegree+'" />';
+	formm +='<input name="url_model" id="url_model" value="'+options.url_model+'" />';
+	
+	jQuery('#form_test_weather').html(form);
+	jQuery('#form_test_model').html(formm);
+	//url='http://www.smartipm.eu/smartIPM/api/weather-scenario-simple';
+	
+	testModelRun();
+}
+
+function testModelRun(){
+
+	var options={
+		//weather data variable
+		'latitude': 43.35012,
+		'longitude': 10.52148,
+		'startTime': '2015-01-01T00:00:00',
+		'endTime': '2015-02-28T00:00:00',
+		'url_weather': '/smartIPM/api/weather-scenario-simple',
+		'weatherVariable': ['0 0 0'],
+		
+		//model variable
+		'lowerThreshold':10,
+		'upperThreshold':32, 
+		'requiredDayDegree':100,
+		'url_model': '/smartIPM/api/run-model',
+		
+		//output variable.
+		'div_element':'test_model'
+	}
+
+	runModel(options);
+
+}
+
+/////////////////////////////////////////////////////////////////////////////
+// runModel
+// ======================
+// run a Model.
+/**
+*/
+function runModel(options){
+
+	url_model=options.url_model;
+	url_weather=options.url_weather;
+
+	console.log('Model on url '+url_model);	
+	console.log('Weather on url '+url_weather);	
+
+	xml = getXMLModel(options);
+	console.log("runModel [xml]:" + xml);
+	
+	var div_element='test_model';
+	console.log(options);
+	if(options.div_element){
+		div_element=options.div_element;
+	}
+
+	xmld = getModelData(url_model, xml);
+  jQuery(document).ajaxStop(function () {
+		console.log("xmldata");
+		console.log(xmldata);
+		val = jQuery(xmldata).find('values').text();		
+		aVal = CSV2array( val );		
+		html = "Day degree: " + aVal[0][0];		
+		console.log(aVal);
+		jQuery('#'+div_element).html(html);
+  });	
+
+}
+
+
 /////////////////////////////////////////////////////////////////////////////
 // runWSS2
 // ======================
@@ -71,7 +173,6 @@ function testApi2Run(){
 */
 function runWSS(options){
 
-	
 	url=options.url;
 
 	console.log('api2 on url '+url);	
@@ -81,6 +182,7 @@ function runWSS(options){
 	console.log(xml);
 	
 	var div_element='test_api2';
+	console.log(options);
 	if(options.div_element){
 		div_element=options.div_element;
 	}
@@ -99,7 +201,7 @@ function runWSS(options){
 
 
 /////////////////////////////////////////////////////////////////////////////
-// makeXML
+// getXMLWSS
 // ======================
 // This function create a valid xml starting from imput parameters
 /**
@@ -126,6 +228,52 @@ function getXMLWSS( options ){
 var xmldata;
 
 /////////////////////////////////////////////////////////////////////////////
+// makeModel
+// ======================
+// This function create a valid xml starting from imput parameters
+/**
+\param options a json containing all the needed data to generate the xml
+\return xml 
+*/
+function getXMLModel( options ){
+	xml = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>';
+	xml += '<RunPestModelRequestMessage xmlns:ns2="http://www.limetri.eu/schemas/ygg" xmlns:ns3="http://www.fispace.eu/domain/ag" xmlns:nsipm="http://www.smartIPM.eu/schema">';
+	xml += '<WeatherData>';
+	xml += '<capabilities>';
+	xml += '<id>31</id>';
+	xml += '<description>smartipmslovenia</description>';	//<<<<<<<<<<<<<<<<<<<<<<< TODO:TO BE FIXED
+	xml += '<uri>';
+	xml += 'http://localhost/smartIPM/api/weather-scenario-simple';	//<<<<<<<<<<<<<<<<<<<<<<< TODO:TO BE FIXED
+	xml += '</uri>';
+	xml += '<cte_id>26</cte_id>';	//<<<<<<<<<<<<<<<<<<<<<<< TODO:TO BE FIXED
+	xml += '<payload>';
+	xml += '<WeatherScenarioSimpleRequestMessage xmlns:ns2="http://www.limetri.eu/schemas/ygg" xmlns:ns3="http://www.fispace.eu/domain/ag">'; 
+	xml += '<latitude>'+options.latitude+'</latitude>';
+	xml += '<longitude>'+options.longitude+'</longitude>';
+	xml += '<startTime>'+options.startTime+'</startTime>';
+	xml += '<endTime>'+options.endTime+'</endTime>';
+	
+	for( nV = 0; nV < options.weatherVariable.length; nV++ )
+	{
+		xml += '<weatherVariable>'+options.weatherVariable[nV]+'</weatherVariable>';
+	}
+	xml += '</WeatherScenarioSimpleRequestMessage>';
+	xml += '</payload>';
+	xml += '</capabilities>';
+	xml += '</WeatherData>';
+  xml += '<PestModel>';
+  xml += '<lowerThreshold>'+options.lowerThreshold+'</lowerThreshold>';
+  xml += '<upperThreshold>'+options.upperThreshold+'</upperThreshold>';
+  xml += '<requiredDayDegree>'+options.requiredDayDegree+'</requiredDayDegree>';
+  xml += '</PestModel>';
+	xml += '</RunPestModelRequestMessage>';
+	
+	return xml;
+}
+
+var xmldata;
+
+/////////////////////////////////////////////////////////////////////////////
 // getWeatherData
 // ======================
 // This function get the weather daily data
@@ -134,9 +282,6 @@ var xmldata;
 \param xml  valid xml generated from makeXML function
 \return xml with the daily data
 */
-
-
-
 function getWeatherData( url, xml ){
 	jQuery.ajax({
     type: 'POST',
@@ -158,6 +303,36 @@ function getWeatherData( url, xml ){
   });
 }
 
+/////////////////////////////////////////////////////////////////////////////
+// getModelData
+// ======================
+// This function get the weather daily data and calculate the Model
+/**
+\param server  server
+\param xml  valid xml generated from makeXML function
+\return xml with the daily data
+*/
+function getModelData( url, xml ){
+	jQuery.ajax({
+    type: 'POST',
+    url: url,
+    contentType: 'application/xml',
+    data: xml,
+    dataType: 'xml',
+    success: function(data){
+				xmldata = data;
+        console.log("getModelData: device control succeeded");
+				return data;
+    },
+    error: function(e){
+        console.log("getModelData: Device control failed");
+// 				console.log(url);
+// 				console.log(xml);
+				console.log(e);
+    },
+    processData: false
+  });
+}
 /////////////////////////////////////////////////////////////////////////////
 // CSV2array
 // ======================
