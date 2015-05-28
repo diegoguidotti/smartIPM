@@ -61,6 +61,10 @@
 			$aPage['nav'][6]['title']='Test Model Manager';
 			$aPage['nav'][6]['link']='?sect=test_model_manager';
 
+
+			$aPage['nav'][6]['title']='webGIS';
+			$aPage['nav'][6]['link']='?sect=web_gis';
+
 			//$body.='Hi '.$login->getUserNameFI()."!";
 
 			if(isset($_REQUEST['sect']))
@@ -83,6 +87,10 @@
 					else if($_REQUEST['sect']=='test_model_manager'){
 						$body .= testModelManager($app);
 					}
+					else if($_REQUEST['sect']=='web_gis'){
+						$aPage['title']='WebGIS';
+						$body .= testWebGIS($app);
+					}
 				}
 			else
 				{
@@ -90,7 +98,7 @@
 				}
 		}
 
-	$aPage['content']=$body;
+		$aPage['content']=$body;
     $layout = new Dbmng\Layout($aPage);
 			
 	$html=$layout->getLayout();
@@ -190,6 +198,25 @@
 						<div id="test_model_manager"></div>';
 		$html.="<script>jQuery(function(){testModelManager();});</script>";	
 
+		return $html;
+	}
+
+	function testWebGIS($app){
+		$html='';
+		$html.='<script src="http://cdn.leafletjs.com/leaflet-0.7.3/leaflet.js"></script>';
+		$html.='<link href="http://cdn.leafletjs.com/leaflet-0.7.3/leaflet.css" rel="stylesheet" /> ';
+		$html.='<script src="js/smartIPM.js"></script>
+
+				<div style="height:500px;" class="col-md-9 col-xs-9" id="smartIPM_map"></div>
+					<div class="col-md-3 col-xs-3"  id="side_container">
+						<div class=""  id="list_models"></div>
+						<div class=""  id="smartIPM_results"><h3>Res</h3></div>
+					</div>';
+
+		//$aPage['sidebar']="<div id='list_models'></div>";
+		$html.="<script>jQuery(function(){init_map();});</script>";	
+
+		
 		return $html;
 	}
 ?>

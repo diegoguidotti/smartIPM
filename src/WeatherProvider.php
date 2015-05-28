@@ -134,7 +134,7 @@ class WeatherProvider {
 				$q .= " and ST_Distance_Spheroid(geom, st_geomFromText('POINT( '||:lon||' '||:lat||')',4326),'SPHEROID[\"WGS 84\",6378137,298.257223563]')<:dist";
 				$q .= " order by ST_Distance_Spheroid(geom, st_geomFromText('POINT( '||:lon||' '||:lat||')',4326),'SPHEROID[\"WGS 84\",6378137,298.257223563]') limit 1";
 				
-				$var = array(':lon' => $obj->longitude, ':lat' => $obj->latitude, ':dist' => 50000);
+				$var = array(':lon' => $obj->longitude, ':lat' => $obj->latitude, ':dist' => 100000);
 			}
 		
 		$res = $this->db->select($q, $var);

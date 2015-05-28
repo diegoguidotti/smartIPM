@@ -161,13 +161,13 @@ function runModel(options){
 
 		var val=jQuery(modres).find('day_degree').text();
 		aVal = CSV2array( val );		
-		html = "Day degree: " + aVal[0][0]+'</br>Enentts';		
+		html = "Cumulated Day degree: " + aVal[0][0]+'<h3>Events</h3>';		
 
 		var ev=jQuery(modres).find('events');
 		jQuery.each(ev, function(k,v){
 			console.log(v);
 			v=jQuery(v);
-			html+='<li><b>var'+k+'</b>!'+v.find('label').text()+'!'+v.find('value').text()+"</li>";
+			html+='<li>'+v.find('label').text()+': '+v.find('value').text()+"</li>";
 		});
 
 		jQuery('#'+div_element).html(html);
@@ -226,7 +226,7 @@ function runModelManager(options){
 // run a weather scanarion simple
 /**
 */
-function runWSS(options){
+function runWSS(options, exe_function){
 
 	url=options.url;
 
@@ -243,14 +243,22 @@ function runWSS(options){
 	}
 
 	xmld = getWeatherData(url, xml);
-  jQuery(document).ajaxStop(function () {
-		console.log(xmldata);
-		val = jQuery(xmldata).find('values').text();		
-		aVal = CSV2array( val );		
-		html = array2Table( aVal );		
-		console.log(aVal);
-		jQuery('#'+div_element).html(html);
-  });	
+
+
+		jQuery(document).ajaxStop(function () {
+			
+			val = jQuery(xmldata).find('values').text();		
+			aVal = CSV2array( val );		
+
+			if(exe_function){
+				exe_function(aVal);				
+			}
+			else{
+				html = array2Table( aVal );		
+				console.log(aVal);
+				jQuery('#'+div_element).html(html);
+			}
+		});	
 
 }
 
@@ -475,7 +483,7 @@ function array2Table( aVal ) {
 	{
 		nCol = aVal[0].length;
 		
-		html += "<table>";
+		html += "<table border='1'>";
 		html += "<tbody>";
 		for( nR = 0; nR < nRow-1; nR++ )
 			{
@@ -581,4 +589,191 @@ function testDiego(){
 	});
 
 
+}
+
+
+var current_model=0;
+
+var models=[
+	{'id_model':0, 'model_name': 'Get Weather Data' }, 	
+	{'id_model':1, 'model_name': 'Olive generation', 'lowerThreshold': 10, 'upperThreshold':40, 'requiredDayDegree':369}, 
+	{'id_model':2, 'model_name': 'Olive summer mortality',  'lowerThreshold': 20, 'upperThreshold':45, 'requiredDayDegree':100} 
+];
+
+
+
+var marker;
+
+
+function init_map(){
+	jQuery( window ).resize(function() {
+			smartIPM_resize();
+		});
+		smartIPM_resize();
+				
+		map = L.map('smartIPM_map', { zoomControl:false }).setView([43.6,10.6], 10);
+		
+		var mapquestUrl = 'http://{s}.mqcdn.com/tiles/1.0.0/osm/{z}/{x}/{y}.png',
+		subDomains = ['otile1','otile2','otile3','otile4'],
+		mapquestAttrib = 'Data, imagery and map information provided by <a href="http://open.mapquest.co.uk" target="_blank">MapQuest</a>, <a href="http://www.openstreetmap.org/" target="_blank">OpenStreetMap</a> and contributors.';
+		var mapquest = new L.TileLayer(mapquestUrl, {maxZoom: 17, attribution: mapquestAttrib, subdomains: subDomains});
+		map.addLayer(mapquest); 
+
+
+
+
+		map.on('click', function(e){
+			jQuery('#latitude').val(e.latlng.lat);
+			jQuery('#longitude').val(e.latlng.lng);
+
+			if(marker){
+				map.removeLayer(marker);
+			}
+			marker = new L.marker(e.latlng).addTo(map);
+
+			exeModelWebGIS();
+		});
+
+		updateListModels();
+		createResult();
+
+}
+
+function exeModelWebGIS(){
+	console.log('exeModelWebGIS'+current_model);
+	var lat=jQuery('#latitude').val();
+	var lon=jQuery('#latitude').val();
+
+
+
+	if(current_model==0){
+
+		var options={
+			'latitude': jQuery('#latitude').val(),
+			'longitude': jQuery('#longitude').val(),
+			'startTime': jQuery('#startTime').val(),
+			'endTime': jQuery('#endTime').val(),
+			'url': '/smartIPM/api/weather-scenario-simple',
+			'weatherVariable': Array('0 0 0'),
+			'div_element': 'final_result' 
+		}
+
+		runWSS(options, function createChart(aVal){
+				console.log('create_chart');
+				console.log(aVal);
+
+				jQuery.each(aVal, function(k,v){
+					v[0]=v[0].substring(0,10);
+				});
+
+				html = array2Table( aVal );		
+				jQuery('#final_result').html(html);
+
+				jQuery('#final_result table').addClass('table');
+
+				
+			});
+	}
+	else{
+		
+		var model_name=jQuery('#list_models li#model_'+current_model).text();
+
+		var html='<h3>'+ model_name+'</h3>';
+		html+='we need to run runModel.....';
+
+		var options={
+			//weather data variable
+			'latitude': jQuery('#latitude').val(),
+			'longitude': jQuery('#longitude').val(),
+			'startTime': jQuery('#startTime').val(),
+			'endTime': jQuery('#endTime').val(),
+			'url': '/smartIPM/api/weather-scenario-simple',
+			'weatherVariable': Array('0 0 0'),		
+			//model variable
+			'lowerThreshold': jQuery('#lowerThreshold').val(),
+			'upperThreshold': jQuery('#upperThreshold').val(), 
+			'requiredDayDegree': jQuery('#requiredDayDegree').val(),
+			'url_model': '/smartIPM/api/run-model',
+			'div_element':'final_result'
+		}
+
+		runModel(options);
+
+
+
+		jQuery('#final_result').html(html);
+	}
+}
+
+
+function updateListModels(){
+	var html='<h3>Available models</h3>';
+
+	html+='<ul class="list-group">';
+
+	first=true;
+
+	jQuery.each(models, function(k,v){
+			var cl='';
+			if(first){
+				cl='active';
+				first=false;
+			}
+
+			html+="<li id='model_"+v.id_model+"' onClick='selectModel("+v.id_model+")' class='list-group-item "+cl+"'>"+v.model_name+"</li>";
+	});
+	html+='</ul>';
+
+
+
+	jQuery('#list_models').html(html);
+}
+
+function createResult(){
+	var html='';
+
+	html+='<a class="btn btn-primary" data-toggle="collapse" href="#parameters" aria-expanded="false" aria-controls="parameters">Parameters</a>';
+	html+="<div class='collapse' id='parameters'>";
+
+		html+='<div class="input-group"><span class="input-group-addon" id="basic-addon-lat">Lat</span><input id="latitude" type="text" class="form-control" placeholder="Latitude" aria-describedby="basic-addon-lat" value="43.70957890"></div>';
+		html+='<div class="input-group"><span class="input-group-addon" id="basic-addon-lon">Long</span><input id="longitude" type="text" class="form-control" placeholder="Longitude" aria-describedby="basic-addon-lon" value="10.557861328125"></div>';
+html+='<div class="input-group"><span class="input-group-addon" id="basic-addon-start">From</span><input id="startTime" type="text" class="form-control" placeholder="Start Time" aria-describedby="basic-addon-start" value="2014-07-01T00:00:00"></div>';
+html+='<div class="input-group"><span class="input-group-addon" id="basic-addon-end">To</span><input id="endTime" type="text" class="form-control" placeholder="End Time" aria-describedby="basic-addon-end" value="2014-12-31T00:00:00"></div>';
+
+html+='<div class="input-group"><span class="input-group-addon" id="basic-addon-low">Low</span><input id="lowerThreshold" type="text" class="form-control" placeholder="lowerThreshold" aria-describedby="basic-addon-low" value="10"></div>';
+html+='<div class="input-group"><span class="input-group-addon" id="basic-addon-up">Up</span><input id="upperThreshold" type="text" class="form-control" placeholder="upperThreshold" aria-describedby="basic-addon-uo" value="40"></div>';
+html+='<div class="input-group"><span class="input-group-addon" id="basic-addon-cum">DD</span><input id="requiredDayDegree" type="text" class="form-control" placeholder="requiredDayDegree" aria-describedby="basic-addon-cum" value="369"></div>';
+
+
+
+	html+="</div>"
+	html+='<h3>Results</h3><div id="final_result">';
+	html+='<div class="alert alert-info" role="alert">Click on the Map to run the selected model</div>';
+	html+='</div>';
+
+	jQuery('#smartIPM_results').html(html);
+	jQuery('#parameters .input-group-addon').width(40);
+
+}
+
+
+function selectModel(id_model){
+	jQuery('#list_models li.list-group-item').removeClass('active');
+	jQuery('#list_models li#model_'+id_model).addClass('active');
+	current_model=id_model;
+
+
+	jQuery('#lowerThreshold').val(models[current_model].lowerThreshold);
+	jQuery('#upperThreshold').val(models[current_model].upperThreshold);
+	jQuery('#requiredDayDegree').val(models[current_model].requiredDayDegree);
+
+	
+
+	exeModelWebGIS()
+}
+
+function smartIPM_resize(){
+	var hh=jQuery(window).height();
+
+	jQuery('#smartIPM_map').height(hh-100);
 }
