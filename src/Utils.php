@@ -20,6 +20,51 @@ class Utils {
 	}
 
 
+	public static function Array2Xml($aArray, $base_element, $header=true) {
+
+		$sxml='';	
+		if($header){
+			$sxml.='<?xml version="1.0" encoding="UTF-8" standalone="yes"?>';
+		}
+		$sxml.='<'.$base_element.'></'.$base_element.'>';
+
+		 $xml=new \SimpleXMLElement($sxml);
+
+		self::Array2XmlBasic($aArray, $xml);
+
+		if($header){
+			return $xml->asXML();;
+		}
+		else{
+			$dom = dom_import_simplexml($xml);
+			return $dom->ownerDocument->saveXML($dom->ownerDocument->documentElement);
+		}
+	}	
+
+	public static function Array2XmlBasic($aArray, &$xml) {
+
+	
+
+    foreach($aArray as $key => $value) {
+        if(is_array($value)) {
+            if(!is_numeric($key)){
+                $subnode = $xml->addChild("$key");
+                self::Array2XmlBasic($value, $subnode);
+            }
+            else{
+                $subnode = $xml->addChild("item$key");
+                self::Array2XmlBasic($value, $subnode);
+            }
+        }
+        else {
+            $xml->addChild("$key",htmlspecialchars("$value"));
+        }
+    }
+
+		
+}
+
+
 	public static function fetchUrl($url, $request, $debug=false){
 		$ret_dbg="";
 		$url= trim($url);

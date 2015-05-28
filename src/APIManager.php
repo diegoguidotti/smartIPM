@@ -139,11 +139,11 @@ class APIManager {
 				
 				$body = file_get_contents("php://input");
 
-				$obj = simplexml_load_string($body);
+				
 
 				$weatherProvider=new WeatherProvider($db, Array());
 
-				return $weatherProvider->exeApi($obj);
+				return $weatherProvider->exeApi($body);
 
 
 			});
@@ -153,11 +153,11 @@ class APIManager {
 
 
 				$body = file_get_contents("php://input");				
-				$obj = simplexml_load_string($body);
+				
 
 				$runModel=new RunModel($db, Array());
 
-				return $runModel->exeApi($obj);
+				return $runModel->exeApi($body);
 				
 				
 			});

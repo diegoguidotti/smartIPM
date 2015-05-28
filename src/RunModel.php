@@ -20,7 +20,10 @@ class RunModel {
     }
 
 
-		public function exeApi($obj){
+		public function exeApi($body){
+
+			$obj = $this->prepareInput($body);
+
 
 			if( isset($obj->WeatherData->WeatherScenarioSimpleResponseMessage) )
 					{
@@ -55,17 +58,30 @@ class RunModel {
 
 				$aResult = $this->runPestModel($aWeather, $aModel);
 
-				//print_r( $aResult );
+				return $this->prepareOutput($obj, $aResult);
+		}
+
+
+
+	public function prepareInput($body){
+		return simplexml_load_string($body);
+	}
+
+
+	public function prepareOutput($obj, $aResult){
+
+
+		$xml = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>';
+		$xml .= '<RunPestModelResponseMessage xmlns:ns2="http://www.limetri.eu/schemas/ygg" xmlns:ns3="http://www.fispace.eu/domain/ag" xmlns:nsipm="http://www.smartIPM.eu/schema">';
+
 				if( $aResult['ok'] )
 					{
 						//print_r($obj);
 						$weather_obj = $obj->WeatherData->WeatherScenarioSimpleResponseMessage;
 						$model_obj   = $obj->PestModel;
 						
-						$outcsv = $aResult['day_degree'];
-						
-						$xml = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>';
-						$xml .= '<RunPestModelResponseMessage xmlns:ns2="http://www.limetri.eu/schemas/ygg" xmlns:ns3="http://www.fispace.eu/domain/ag" xmlns:nsipm="http://www.smartIPM.eu/schema">';
+						$outcsv = Utils::Array2XML($aResult,'ModelResult', false);												
+
 						$xml .= '<WeatherData>';
 						$xml .= '<WeatherScenarioSimpleResponseMessage xmlns:ns2="http://www.limetri.eu/schemas/ygg" xmlns:ns3="http://www.fispace.eu/domain/ag">'; 
 						$xml .= '<latitude>'.$weather_obj->latitude.'</latitude>';
@@ -85,19 +101,32 @@ class RunModel {
 						$xml .= '<requiredDayDegree>'.$model_obj->requiredDayDegree.'</requiredDayDegree>';
 						$xml .= '<values>'.$outcsv.'</values>';
 						$xml .= '</PestModel>';
-						$xml .= '</RunPestModelResponseMessage>';
 					}
-				return $xml;
-		}
-
+				else{
+					$xml .= '<Message>'.$obj->message.'</Message>';
+				}	
+				$xml .= '</RunPestModelResponseMessage>';
+				return $xml;		
+	}
+	
 
 
 	/* get an array return an array */
 	public function runPestModel($aWeather, $aModel)
 	{
 		$Tsum = 0;
+		$perc = 0;
 		
 		$lt = $aModel['lowerThreshold'];
+		$req = $aModel['requiredDayDegree'];
+		$values='';
+		$sepVal=';';
+		$sepRow=':::';
+
+		$header	= ("Cumulated".$sepVal."Percentage");
+		$events = Array(
+			Array('label'=>'Completed Date', 'value'=>'') 
+		);
 		
 		for( $w = 0; $w < count($aWeather); $w++ )
 			{
@@ -105,9 +134,23 @@ class RunModel {
 				
 				if( $temp > $lt )
 					$Tsum += $temp-$lt;
+
+				$perc=$Tsum/$req;
+				if($perc>1){
+					$perc=1;
+					if($events[0]['value']==''){
+						$events[0]['value']=$aWeather[$w][0];
+					}
+				}
+
+				$values+=$aWeather[$w][0].$sepVal.$Tsum.$sepVal.($perc).$sepRow;
 			}
 		
-		return array('ok'=> true, 'day_degree' => $Tsum, 'message' => 'The model has been runned successully!');
+		$aRet= array('ok'=> true, 'day_degree' => $Tsum,  'events'=> $events, 'results'=> Array('headers'=>$header, 'values'=>$values), 'message' => 'The model has been runned successully!');
+
+		
+
+		return $aRet;
 	}
 
 

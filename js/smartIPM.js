@@ -153,12 +153,23 @@ function runModel(options){
 
 	xmld = getModelData(url_model, xml);
   jQuery(document).ajaxStop(function () {
-		console.log("xmldata");
-		console.log(xmldata);
-		val = jQuery(xmldata).find('values').text();		
+		//console.log("xmldata");
+		//console.log(xmldata);
+		modres = jQuery(xmldata).find('ModelResult');		
+
+		console.log(modres);
+
+		var val=jQuery(modres).find('day_degree').text();
 		aVal = CSV2array( val );		
-		html = "Day degree: " + aVal[0][0];		
-		console.log(aVal);
+		html = "Day degree: " + aVal[0][0]+'</br>Enentts';		
+
+		var ev=jQuery(modres).find('events');
+		jQuery.each(ev, function(k,v){
+			console.log(v);
+			v=jQuery(v);
+			html+='<li><b>var'+k+'</b>!'+v.find('label').text()+'!'+v.find('value').text()+"</li>";
+		});
+
 		jQuery('#'+div_element).html(html);
   });	
 

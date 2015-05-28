@@ -12,6 +12,10 @@ class WeatherProvider {
 	private $db;
 	private $aSetting;
 
+	private $toSeparator  = ";";
+	private $blSeparator  = ":::";
+	private $decSeparator = ".";
+
 		
     public function __construct($db, $aSetting)
     {
@@ -20,17 +24,29 @@ class WeatherProvider {
     }
 
 
-		public function exeApi($obj){
+		public function exeApi($body){
+
+
 				
-				$startTime    = $obj->startTime;
-				$endTime      = $obj->endTime;
-				$toSeparator  = ";";
-				$blSeparator  = ":::";
-				$decSeparator = ".";
+				if($body!=''){
+					$obj = $this->prepareInput($body);
+					$res_data = $this->getWeatherData($obj);
+					
+					return $this->prepareOutput($obj, $res_data);
+				}
+				else{
+					return Utils::Array2XML(Array('ok'=>false, 'message'=>'No body payload'),'Response');					
+				}				
 				
-				//print_r($obj);
-				$res_data = $this->getWeatherData($obj);
 				
+		}
+
+	public function prepareInput($body){
+		return simplexml_load_string($body);
+	}
+
+
+	public function prepareOutput($obj, $res_data ){
 				$lat = "";
 				$lon = "";
 				if(isset($obj->longitude)){		
@@ -39,6 +55,8 @@ class WeatherProvider {
 				if(isset($obj->latitude)){		
 					$lat = $obj->latitude;
 				}
+				$startTime = $obj->startTime;
+				$endTime = $obj->endTime;
 
 				$aWField = $this->getWeatherParameter($obj);
 				$aWCode  = $this->getWeatherParameter($obj,false);
@@ -49,14 +67,14 @@ class WeatherProvider {
 						
 						for( $r = 0; $r < $res_data['rowCount']; $r++ )
 							{
-								$outcsv .= $res_data['data'][$r]['time_ref'] . $toSeparator;
+								$outcsv .= $res_data['data'][$r]['time_ref'] . $this->toSeparator;
 								
 								for( $nF = 0; $nF < count($aWField); $nF++ )
 									{
 										if( $nF < count($aWField) -1 )
-											$outcsv .= $res_data['data'][$r][$aWField[$nF]] . $toSeparator;
+											$outcsv .= $res_data['data'][$r][$aWField[$nF]] . $this->toSeparator;
 										else
-											$outcsv .= $res_data['data'][$r][$aWField[$nF]] . $blSeparator;
+											$outcsv .= $res_data['data'][$r][$aWField[$nF]] . $this->blSeparator;
 										
 									}
 							}
@@ -73,9 +91,9 @@ class WeatherProvider {
 							{
 								$xml .= '				<weatherVariable>'.$aWCode[$nF].'</weatherVariable>';
 							}
-						$xml .= '				<blockSeparator>'.$blSeparator.'</blockSeparator>';
-						$xml .= '				<decimalSeparator>'.$decSeparator.'</decimalSeparator>';
-						$xml .= '				<tokenSeparator>'.$toSeparator.'</tokenSeparator>';
+						$xml .= '				<blockSeparator>'.$this->blSeparator.'</blockSeparator>';
+						$xml .= '				<decimalSeparator>'.$this->decSeparator.'</decimalSeparator>';
+						$xml .= '				<tokenSeparator>'.$this->toSeparator.'</tokenSeparator>';
 						$xml .= '				<values>'.$outcsv.'</values>';
 						$xml .= '			</ns3:WeatherScenarioSimpleResponseMessage>';
 					}
@@ -94,17 +112,16 @@ class WeatherProvider {
 								$xml .= '				<weatherVariable>'.$aWCode[$nF].'</weatherVariable>';
 							}
 						
-						$xml .= '				<blockSeparator>'.$blSeparator.'</blockSeparator>';
-						$xml .= '				<decimalSeparator>'.$decSeparator.'</decimalSeparator>';
-						$xml .= '				<tokenSeparator>'.$toSeparator.'</tokenSeparator>';
+						$xml .= '				<blockSeparator>'.$this->blSeparator.'</blockSeparator>';
+						$xml .= '				<decimalSeparator>'.$this->decSeparator.'</decimalSeparator>';
+						$xml .= '				<tokenSeparator>'.$this->toSeparator.'</tokenSeparator>';
 						$xml .= '				<values></values>';
 						$xml .= '			</ns3:WeatherScenarioSimpleResponseMessage>';
 					}
-				
-				return $xml;
-		}
 
+			return $xml;
 
+	}
 
 	
 	public function getWeatherStations($obj)
@@ -130,6 +147,7 @@ class WeatherProvider {
 	
 	public function getWeatherData($obj)
 	{
+
 		$aWField = $this->getWeatherParameter($obj);
 		
 		$res = $this->getWeatherStations($obj);
@@ -171,6 +189,9 @@ class WeatherProvider {
 	
 	public function getWeatherParameter($obj, $bSolveCode = true)
 	{
+
+
+		
 		$nVar = count($obj->weatherVariable);
 		
 		$aWField = array();
