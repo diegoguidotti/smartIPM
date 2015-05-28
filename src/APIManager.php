@@ -139,26 +139,29 @@ class APIManager {
 				
 				$body = file_get_contents("php://input");
 
-				
-
 				$weatherProvider=new WeatherProvider($db, Array());
 
 				return $weatherProvider->exeApi($body);
-
 
 			});
 			
 			$r3->any('/api/run-model/', function() use ( $db ) {
 
-
-
 				$body = file_get_contents("php://input");				
-				
 
 				$runModel=new RunModel($db, Array());
 
 				return $runModel->exeApi($body);
 				
+			});
+						
+			$r3->any('/api/model-manager/', function() use ( $db ) {
+
+				$body = file_get_contents("php://input");
+
+				$runModelManager=new ModelManager($db, Array());
+
+				return $runModelManager->exeApi($body);
 				
 			});
 						

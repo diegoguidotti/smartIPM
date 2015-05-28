@@ -58,6 +58,9 @@
 			$aPage['nav'][5]['title']='Test Model';
 			$aPage['nav'][5]['link']='?sect=test_model';
 
+			$aPage['nav'][6]['title']='Test Model Manager';
+			$aPage['nav'][6]['link']='?sect=test_model_manager';
+
 			//$body.='Hi '.$login->getUserNameFI()."!";
 
 			if(isset($_REQUEST['sect']))
@@ -76,6 +79,9 @@
 					}
 					else if($_REQUEST['sect']=='test_model'){
 						$body .= testModel($app);
+					}
+					else if($_REQUEST['sect']=='test_model_manager'){
+						$body .= testModelManager($app);
 					}
 				}
 			else
@@ -125,15 +131,8 @@
 
 	function testDbmng($app){
 		$body='aa';
-
 		
-
 		if(true){
-
-			
-
-		  
-
 			$aForm=array(  
 				'table_name' => 'test' ,
 					'primary_key'=> array('id'), 
@@ -142,7 +141,6 @@
 							'name' => array('label'   => 'Name', 'type' => 'varchar')
 					),
 			);
-
 
 			$aParam=array();
 			$aParam['filters']['id']=1;
@@ -163,8 +161,6 @@
 		$html.='<script src="js/smartIPM.js"></script><div id="test_api"></div>';
 		$html.="<script>jQuery(function(){testApi();});</script>";	
 
-
-
 		return $html;
 	}
 
@@ -173,14 +169,11 @@
 		$html='test Api 2';
 		$html.='<script src="js/smartIPM.js"></script><div id="form_test_api2"></div><div id="test_api2"></div>';
 		$html.="<script>jQuery(function(){testApi2();});</script>";	
-
-
-
+		
 		return $html;
 	}
 
 	function testModel($app){
-
 		$html='test Model';
 		$html.='<script src="js/smartIPM.js"></script>
 						<p>Weather parameters</p><div id="form_test_weather"></div>
@@ -188,7 +181,14 @@
 						<p>Result</p><div id="test_model"></div>';
 		$html.="<script>jQuery(function(){testModel();});</script>";	
 
-
+		return $html;
+	}
+	
+	function testModelManager($app){
+		$html='test Model Manager';
+		$html.='<script src="js/smartIPM.js"></script>
+						<div id="test_model_manager"></div>';
+		$html.="<script>jQuery(function(){testModelManager();});</script>";	
 
 		return $html;
 	}

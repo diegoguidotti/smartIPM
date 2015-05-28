@@ -175,6 +175,50 @@ function runModel(options){
 
 }
 
+function testModelManager(){
+	var options = {
+		'url': '/smartIPM/api/model-manager',
+		'div_element':'test_model_manager'
+	};
+	runModelManager(options);
+}
+
+function runModelManager(options){
+	
+	var div_element='test_model_manager';
+	console.log(options);
+	if(options.div_element){
+		div_element=options.div_element;
+	}
+	url = options.url;
+	
+	xml = getXMLModelManager(options);
+	
+	xmld = getModelManagerData(url, xml);
+
+  jQuery(document).ajaxStop(function () {
+		//console.log(xmldata);
+		
+		html = "";
+		html += "<table border='1'>";
+		html += "<thead><th>ID</th><th>Model Name</th><th>Model Descr</th><th>Crop Name</th><th>Pest Name</th></thead>";
+		html += "<tbody>";
+		jQuery(xmldata).find('model').each(function (k,v){
+			console.log(v);
+			v = jQuery(v);
+			html += "<tr>";
+			html += "<td>"+v.find('id').text()+"</td>";
+			html += "<td>"+v.find('model_name').text()+"</td>";
+			html += "<td>"+v.find('model_description').text()+"</td>";
+			html += "<td>"+v.find('crop').find('crop_name').text()+"</td>";
+			html += "<td>"+v.find('pest').find('pest_name').text()+"</td>";
+			html += "</tr>";
+		});
+		html += "</tbody>";
+		html += "</table>";
+		jQuery('#'+div_element).html(html);
+  });	
+}
 
 /////////////////////////////////////////////////////////////////////////////
 // runWSS2
@@ -239,7 +283,7 @@ function getXMLWSS( options ){
 var xmldata;
 
 /////////////////////////////////////////////////////////////////////////////
-// makeModel
+// getXMLModel
 // ======================
 // This function create a valid xml starting from imput parameters
 /**
@@ -282,6 +326,24 @@ function getXMLModel( options ){
 	return xml;
 }
 
+/////////////////////////////////////////////////////////////////////////////
+// getXMLModelManager
+// ======================
+// This function create a valid xml starting from imput parameters
+/**
+\param options a json containing all the needed data to generate the xml
+\return xml 
+*/
+function getXMLModelManager( options ){
+	xml = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>';
+	xml += '<RunModelManagerRequest xmlns:ns2="http://www.limetri.eu/schemas/ygg" xmlns:ns3="http://www.fispace.eu/domain/ag" xmlns:nsipm="http://www.smartIPM.eu/schema">';
+	
+	
+	
+	xml += '</RunModelManagerRequest>';
+	
+	return xml;
+}
 var xmldata;
 
 /////////////////////////////////////////////////////////////////////////////
@@ -344,6 +406,39 @@ function getModelData( url, xml ){
     processData: false
   });
 }
+
+/////////////////////////////////////////////////////////////////////////////
+// getModelManagerData
+// ======================
+// This function get all the models
+/**
+\param server  server
+\param xml  valid xml generated from makeXML function
+\return xml with the daily data
+*/
+function getModelManagerData( url, xml ){
+	jQuery.ajax({
+    type: 'POST',
+    url: url,
+    contentType: 'application/xml',
+    data: xml,
+    dataType: 'xml',
+    success: function(data){
+				xmldata = data;
+				//console.log(xmldata);
+        console.log("getModelManagerData: device control succeeded");
+				return data;
+    },
+    error: function(e){
+        console.log("getModelManagerData: Device control failed");
+// 				console.log(url);
+// 				console.log(xml);
+				console.log(e);
+    },
+    processData: false
+  });
+}
+
 /////////////////////////////////////////////////////////////////////////////
 // CSV2array
 // ======================
