@@ -197,7 +197,8 @@ function runModelManager(options){
 	xmld = getModelManagerData(url, xml);
 
   jQuery(document).ajaxStop(function () {
-		//console.log(xmldata);
+		console.log("runModelManager");
+		console.log(xmldata);
 		
 		html = "";
 		html += "<table border='1'>";
@@ -707,6 +708,12 @@ function exeModelWebGIS(){
 
 
 function updateListModels(){
+	var options = {
+		'url': '/smartIPM/api/model-manager',
+		'div_element':'test_model_manager'
+	};
+	runModelManager(options);
+	
 	var html='<h3>Available models</h3>';
 
 	html+='<ul class="list-group">';
