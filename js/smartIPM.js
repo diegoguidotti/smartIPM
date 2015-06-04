@@ -256,7 +256,7 @@ function runWSS(options, exe_function){
 			}
 			else{
 				html = array2Table( aVal );		
-				console.log(aVal);
+				
 				jQuery('#'+div_element).html(html);
 			}
 		});	
@@ -660,15 +660,16 @@ function exeModelWebGIS(){
 		}
 
 		runWSS(options, function createChart(aVal){
-				console.log('create_chart');
-				console.log(aVal);
+				console.log('create_chart'+Math.random());
+				
 
 				jQuery.each(aVal, function(k,v){
 					v[0]=v[0].substring(0,10);
 				});
 				
-				console.log("aVal");
-				console.log(aVal);
+				
+				
+
  				if( aVal.length > 1 )
 					html = array2Table( aVal );
  				else
