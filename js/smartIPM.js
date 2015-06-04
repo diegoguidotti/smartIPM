@@ -666,8 +666,14 @@ function exeModelWebGIS(){
 				jQuery.each(aVal, function(k,v){
 					v[0]=v[0].substring(0,10);
 				});
-
-				html = array2Table( aVal );		
+				
+				console.log("aVal");
+				console.log(aVal);
+ 				if( aVal.length > 1 )
+					html = array2Table( aVal );
+ 				else
+ 					html = "No data available!";
+				
 				jQuery('#final_result').html(html);
 
 				jQuery('#final_result table').addClass('table');

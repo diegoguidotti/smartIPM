@@ -17,29 +17,23 @@ class WeatherProvider {
 	private $decSeparator = ".";
 
 		
-    public function __construct($db, $aSetting)
-    {
-			$this->db=$db;
-			$this->aSetting=$aSetting;
-    }
+	public function __construct($db, $aSetting){
+		$this->db=$db;
+		$this->aSetting=$aSetting;
+	}
 
 
-		public function exeApi($body){
-
-
-				
-				if($body!=''){
-					$obj = $this->prepareInput($body);
-					$res_data = $this->getWeatherData($obj);
-					
-					return $this->prepareOutput($obj, $res_data);
-				}
-				else{
-					return Utils::Array2XML(Array('ok'=>false, 'message'=>'No body payload'),'Response');					
-				}				
-				
-				
+	public function exeApi($body){
+		if($body!=''){
+			$obj = $this->prepareInput($body);
+			$res_data = $this->getWeatherData($obj);
+			//print_r($res_data);
+			return $this->prepareOutput($obj, $res_data);
 		}
+		else{
+			return Utils::Array2XML(Array('ok'=>false, 'message'=>'No body payload'),'Response');					
+		}				
+	}
 
 	public function prepareInput($body){
 		return simplexml_load_string($body);
@@ -47,86 +41,86 @@ class WeatherProvider {
 
 
 	public function prepareOutput($obj, $res_data ){
-				$lat = "";
-				$lon = "";
-				if(isset($obj->longitude)){		
-					$lon = $obj->longitude;
-				}
-				if(isset($obj->latitude)){		
-					$lat = $obj->latitude;
-				}
-				$startTime = $obj->startTime;
-				$endTime = $obj->endTime;
+		
+		$lat = "";
+		$lon = "";
+		if(isset($obj->longitude)){		
+			$lon = $obj->longitude;
+		}
+		if(isset($obj->latitude)){		
+			$lat = $obj->latitude;
+		}
+		$startTime = $obj->startTime;
+		$endTime = $obj->endTime;
 
-				$aWField = $this->getWeatherParameter($obj);
-				$aWCode  = $this->getWeatherParameter($obj,false);
+		$aWField = $this->getWeatherParameter($obj);
+		$aWCode  = $this->getWeatherParameter($obj,false);
 
-				if( $res_data['ok'] )
+		if( $res_data['ok'] )
+			{
+				//print_r($res_data);
+				$lat = $res_data['latitude'];
+				$lon = $res_data['longitude'];
+				$outcsv = "";
+				
+				for( $r = 0; $r < $res_data['rowCount']; $r++ )
 					{
-						$outcsv = "";
+						$outcsv .= $res_data['data'][$r]['time_ref'] . $this->toSeparator;
 						
-						for( $r = 0; $r < $res_data['rowCount']; $r++ )
+						for( $nF = 0; $nF < count($aWField); $nF++ )
 							{
-								$outcsv .= $res_data['data'][$r]['time_ref'] . $this->toSeparator;
-								
-								for( $nF = 0; $nF < count($aWField); $nF++ )
-									{
-										if( $nF < count($aWField) -1 )
-											$outcsv .= $res_data['data'][$r][$aWField[$nF]] . $this->toSeparator;
-										else
-											$outcsv .= $res_data['data'][$r][$aWField[$nF]] . $this->blSeparator;
-										
-									}
+								if( $nF < count($aWField) -1 )
+									$outcsv .= $res_data['data'][$r][$aWField[$nF]] . $this->toSeparator;
+								else
+									$outcsv .= $res_data['data'][$r][$aWField[$nF]] . $this->blSeparator;
 							}
-
-						
-						$xml  = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>';
-						$xml .= '			<ns3:WeatherScenarioSimpleResponseMessage xmlns:ns2="http://www.limetri.eu/schemas/ygg" xmlns:ns3="http://www.fispace.eu/domain/ag">';
-						$xml .= '				<latitude>'.$lat.'</latitude>';
-						$xml .= '				<longitude>'.$lon.'</longitude>';
-						$xml .= '				<startTime>'.$startTime.'</startTime>';
-						$xml .= '				<endTime>'.$endTime.'</endTime>';
-						
-						for( $nF = 0; $nF < count($aWCode); $nF++ )
-							{
-								$xml .= '				<weatherVariable>'.$aWCode[$nF].'</weatherVariable>';
-							}
-						$xml .= '				<blockSeparator>'.$this->blSeparator.'</blockSeparator>';
-						$xml .= '				<decimalSeparator>'.$this->decSeparator.'</decimalSeparator>';
-						$xml .= '				<tokenSeparator>'.$this->toSeparator.'</tokenSeparator>';
-						$xml .= '				<values>'.$outcsv.'</values>';
-						$xml .= '			</ns3:WeatherScenarioSimpleResponseMessage>';
 					}
-				else
+				
+				$xml  = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>';
+				$xml .= '			<ns3:WeatherScenarioSimpleResponseMessage xmlns:ns2="http://www.limetri.eu/schemas/ygg" xmlns:ns3="http://www.fispace.eu/domain/ag">';
+				$xml .= '				<latitude>'.$lat.'</latitude>';
+				$xml .= '				<longitude>'.$lon.'</longitude>';
+				$xml .= '				<startTime>'.$startTime.'</startTime>';
+				$xml .= '				<endTime>'.$endTime.'</endTime>';
+				
+				for( $nF = 0; $nF < count($aWCode); $nF++ )
 					{
-
-						$xml  = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>';
-						$xml .= '			<ns3:WeatherScenarioSimpleResponseMessage xmlns:ns2="http://www.limetri.eu/schemas/ygg" xmlns:ns3="http://www.fispace.eu/domain/ag">';
-						$xml .= '				<latitude>'.$lat.'</latitude>';
-						$xml .= '				<longitude>'.$lon.'</longitude>';
-						$xml .= '				<startTime>'.$startTime.'</startTime>';
-						$xml .= '				<endTime>'.$endTime.'</endTime>';
-						
-						for( $nF = 0; $nF < count($aWCode); $nF++ )
-							{
-								$xml .= '				<weatherVariable>'.$aWCode[$nF].'</weatherVariable>';
-							}
-						
-						$xml .= '				<blockSeparator>'.$this->blSeparator.'</blockSeparator>';
-						$xml .= '				<decimalSeparator>'.$this->decSeparator.'</decimalSeparator>';
-						$xml .= '				<tokenSeparator>'.$this->toSeparator.'</tokenSeparator>';
-						$xml .= '				<values></values>';
-						$xml .= '			</ns3:WeatherScenarioSimpleResponseMessage>';
+						$xml .= '				<weatherVariable>'.$aWCode[$nF].'</weatherVariable>';
 					}
+				$xml .= '				<blockSeparator>'.$this->blSeparator.'</blockSeparator>';
+				$xml .= '				<decimalSeparator>'.$this->decSeparator.'</decimalSeparator>';
+				$xml .= '				<tokenSeparator>'.$this->toSeparator.'</tokenSeparator>';
+				$xml .= '				<values>'.$outcsv.'</values>';
+				$xml .= '			</ns3:WeatherScenarioSimpleResponseMessage>';
+			}
+		else
+			{
+				$xml  = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>';
+				$xml .= '			<ns3:WeatherScenarioSimpleResponseMessage xmlns:ns2="http://www.limetri.eu/schemas/ygg" xmlns:ns3="http://www.fispace.eu/domain/ag">';
+				$xml .= '				<latitude>'.$lat.'</latitude>';
+				$xml .= '				<longitude>'.$lon.'</longitude>';
+				$xml .= '				<startTime>'.$startTime.'</startTime>';
+				$xml .= '				<endTime>'.$endTime.'</endTime>';
+				
+				for( $nF = 0; $nF < count($aWCode); $nF++ )
+					{
+						$xml .= '				<weatherVariable>'.$aWCode[$nF].'</weatherVariable>';
+					}
+				
+				$xml .= '				<blockSeparator>'.$this->blSeparator.'</blockSeparator>';
+				$xml .= '				<decimalSeparator>'.$this->decSeparator.'</decimalSeparator>';
+				$xml .= '				<tokenSeparator>'.$this->toSeparator.'</tokenSeparator>';
+				$xml .= '				<values></values>';
+				$xml .= '			</ns3:WeatherScenarioSimpleResponseMessage>';
+			}
 
-			return $xml;
-
+		return $xml;
 	}
 
 	
-	public function getWeatherStations($obj)
-	{
-		$q = "select * from weather_station where 1=1 ";
+	public function getWeatherStations($obj){
+		
+		$q = "select *, st_x(geom) as longitude, st_y(geom) as latitude from weather_station s inner join weather_data d on s.id_weather_station = d.id_weather_station where 1=1 ";
 		$var = array();
 		
 		if( isset($obj->longitude) && isset($obj->latitude) )
@@ -138,6 +132,7 @@ class WeatherProvider {
 			}
 		
 		$res = $this->db->select($q, $var);
+		//echo $this->db->getSQL($q, $var);
 		if( $res['rowCount'] == 0 )
 			$res = array('ok' => false, 'data' => array(), 'message' => "No station selected");
 
@@ -145,14 +140,14 @@ class WeatherProvider {
 	}
 
 	
-	public function getWeatherData($obj)
-	{
+	public function getWeatherData($obj){
 
 		$aWField = $this->getWeatherParameter($obj);
 		
 		$res = $this->getWeatherStations($obj);
 		if( $res['ok'] )
 			{
+				//print_r($res);
 				$var = array();
 				$where = "";
 				if( isset($obj->startTime) )
@@ -176,6 +171,8 @@ class WeatherProvider {
 				$q  = "select $what time_ref from weather_data where id_weather_station = :station $where";
 				$var[':station'] = $res['data'][0]['id_weather_station'];
 				$res_data = $this->db->select($q, $var);
+				$res_data['latitude'] = $res['data'][0]['latitude'];
+				$res_data['longitude'] = $res['data'][0]['longitude'];
 				//echo "getWeatherData: " . $this->db->getSQL($q,$var);
 				
 				if( $res_data['rowCount'] == 0 )
@@ -187,10 +184,7 @@ class WeatherProvider {
 		return $res_data;
 	}
 	
-	public function getWeatherParameter($obj, $bSolveCode = true)
-	{
-
-
+	public function getWeatherParameter($obj, $bSolveCode = true){
 		
 		$nVar = count($obj->weatherVariable);
 		
@@ -217,10 +211,6 @@ class WeatherProvider {
 			}
 		return $aWField;
 	}
-
-	
-	
-
 
 }
 
