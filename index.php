@@ -5,6 +5,7 @@
 
 	use smartIPM\FIWARELogin;
 	use smartIPM\BasicLogin;
+	use smartIPM\ModelUtil;
 
 	$db = Dbmng\Db::createDb($aSetting['DB']['DB_DSN'], $aSetting['DB']['DB_USER'], $aSetting['DB']['DB_PASSWD'] );
 
@@ -188,7 +189,9 @@
 						<p>Model parameters</p><div id="form_test_model"></div>
 						<p>Result</p><div id="test_model"></div>';
 		$html.="<script>jQuery(function(){testModel();});</script>";	
-
+		
+		//print_r(ModelUtil::sinMinMax(8, 20, 10, 25));
+		print_r(ModelUtil::hourDegree( 8, 10, 20, 25, 8, 11 ));
 		return $html;
 	}
 	
