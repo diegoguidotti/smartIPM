@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<phpunit backupGlobals="false"
+	backupStaticAttributes="false"
+	colors="true"
+	convertErrorsToExceptions="true"
+	convertNoticesToExceptions="true"
+	convertWarningsToExceptions="true"
+	processIsolation="false"
+	stopOnFailure="false"
+	syntaxCheck="false"
+	bootstrap="vendor/autoload.php"
+>
+
+	<testsuites>
+		<testsuite name="SmartIPM test">
+			<directory>./tests/</directory>
+		</testsuite>
+	</testsuites>
+
+	<listeners>
+		<listener class="\Mockery\Adapter\Phpunit\TestListener"></listener>
+	</listeners>
+
+	<php>
+		<var name="DB_DSN" value="mysql:host=localhost;dbname=dbmng2;charset=utf8" />
+		<var name="DB_USER" value="xxx" />
+		<var name="DB_PASSWD" value="xxx" />
+		<var name="CLIENT_ID" value="xxxxx" />
+		<var name="CLIENT_SECRET" value="xxxxx" />
+		<var name="REDIRECT_URI" value="http://localhost/smartIPM/" />
+		<var name="AUTHORIZATION_ENDPOINT" value="http://auth.ee.fispace.eu:8080/auth/realms/fispace/tokens/access/codes" />
+		<var name="TOKEN_ENDPOINT" value="http://auth.ee.fispace.eu:8080/auth/realms/fispace/tokens/access/codes" />
+	</php>
+</phpunit>
