@@ -191,7 +191,7 @@
 		$html.="<script>jQuery(function(){testModel();});</script>";	
 		
 		//print_r(ModelUtil::sinMinMax(8, 20, 10, 25));
-		print_r(ModelUtil::hourDegree( 8, 10, 20, 25, 8, 11 ));
+		//print_r(ModelUtil::hourDegree( 8, 10, 20, 25, 8, 11 ));
 		return $html;
 	}
 	
