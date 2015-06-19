@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <mapping>
 	<class name="eu.fispace.api.ag.ProvideWeatherConditionsRequestMessage">			 		 
-		 <map-to xml="WeatherCondition"/>
+		 <map-to xml="WeatherScenarioSimple"/>
 		 
 		 <field name="businessProcessId" type="integer">
 		 	<bind-xml name="bpid" node="attribute"/>
