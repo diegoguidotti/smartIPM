@@ -153,8 +153,8 @@ function runModel(options){
 
 	xmld = getModelData(url_model, xml);
   jQuery(document).ajaxStop(function () {
-		//console.log("xmldata");
-		//console.log(xmldata);
+		console.log("xmldata");
+		console.log(xmldata);
 		modres = jQuery(xmldata).find('ModelResult');		
 
 		console.log(modres);

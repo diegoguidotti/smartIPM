@@ -24,39 +24,61 @@ class RunModel {
 
 			$obj = $this->prepareInput($body);
 
-
 			if( isset($obj->WeatherData->WeatherScenarioSimpleResponseMessage) )
 					{
 						$objWeather = $obj->WeatherData->WeatherScenarioSimpleResponseMessage;						
 					}
-				elseif( isset($obj->WeatherData->capabilities) )
-					{
-						$uri = $obj->WeatherData->capabilities->uri;
-						$weather_obj = $obj->WeatherData->capabilities->payload->WeatherScenarioSimpleRequestMessage;
-						
-						$xml = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>';
-						$xml .= '<ns3:WeatherScenarioSimpleRequestMessage xmlns:ns2="http://www.limetri.eu/schemas/ygg" xmlns:ns3="http://www.fispace.eu/domain/ag">';
-						$xml .= '	<latitude>'.$weather_obj->latitude.'</latitude>';
-						$xml .= '	<longitude>'.$weather_obj->longitude.'</longitude>';
-						$xml .= '	<startTime>'.$weather_obj->startTime.'</startTime>';
-						$xml .= '	<endTime>'.$weather_obj->endTime.'</endTime>';
-						$xml .= '	<weatherVariable>'.$weather_obj->weatherVariable.'</weatherVariable>';
-						$xml .= '</ns3:WeatherScenarioSimpleRequestMessage>';
-						
-						//echo $xml;
-						$body = Utils::fetchUrl($uri, $xml);
-						$objWeather = simplexml_load_string($body);
-						//print_r($objWeather);
-					}
+			elseif( isset($obj->WeatherData->capabilities) )
+				{
+					//print_r($obj->WeatherData->capabilities);
+					$uri = $obj->WeatherData->capabilities->uri;
+					$weather_obj = $obj->WeatherData->capabilities->payload->WeatherScenarioSimpleRequestMessage;
+					
+					$xml = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>';
+					$xml .= '<ns3:WeatherScenarioSimpleRequestMessage xmlns:ns2="http://www.limetri.eu/schemas/ygg" xmlns:ns3="http://www.fispace.eu/domain/ag">';
+					$xml .= '	<latitude>'.$weather_obj->latitude.'</latitude>';
+					$xml .= '	<longitude>'.$weather_obj->longitude.'</longitude>';
+					$xml .= '	<startTime>'.$weather_obj->startTime.'</startTime>';
+					$xml .= '	<endTime>'.$weather_obj->endTime.'</endTime>';
+					$xml .= '	<weatherVariable>'.$weather_obj->weatherVariable.'</weatherVariable>';
+					$xml .= '</ns3:WeatherScenarioSimpleRequestMessage>';
+					
+					//echo $xml;
+					$aBody = Utils::fetchUrl($uri, $xml);
+					if( $aBody['ok'] )
+						$objWeather = simplexml_load_string($aBody['body']);
+					else	
+						$objWeather = json_decode(json_encode($aBody), FALSE);
+					//print_r($objWeather);
+				}
 				
 				$objModel = $obj->PestModel;
 				$aModel = (array) $objModel;
 				
-				// get the weather value from the WeatherScenarioSimpleResponseMessage
-				$value = $objWeather->values;
-				$aWeather = Utils::CSV2Array($value, $objWeather->blockSeparator, $objWeather->tokenSeparator);
-
-				$aResult = $this->runPestModel($aWeather, $aModel);
+				if( !isset($objWeather->ok) )
+					{
+						// get the weather value from the WeatherScenarioSimpleResponseMessage
+						$value = $objWeather->values;
+						
+						$aWeather = array();
+						$aResult  = array();
+						if( strlen($value) != 0 )
+							{
+								$aWeather = Utils::CSV2Array($value, $objWeather->blockSeparator, $objWeather->tokenSeparator);
+								$aResult = $this->runPestModel($aWeather, $aModel);
+							}
+						else
+							{
+								$aResult['ok'] = 0;
+								$aResult['message'] = "There are no weather data";
+							}
+					}
+				else
+					{
+						$aResult['ok'] = 0;
+						$aResult['message'] = $objWeather->message;
+					}
+				
 
 				return $this->prepareOutput($obj, $aResult);
 		}
@@ -74,13 +96,12 @@ class RunModel {
 		$xml = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>';
 		$xml .= '<RunPestModelResponseMessage xmlns:ns2="http://www.limetri.eu/schemas/ygg" xmlns:ns3="http://www.fispace.eu/domain/ag" xmlns:nsipm="http://www.smartIPM.eu/schema">';
 
-				if( $aResult['ok'] )
-					{
+				
 						//print_r($obj);
 						$weather_obj = $obj->WeatherData->WeatherScenarioSimpleResponseMessage;
 						$model_obj   = $obj->PestModel;
 						
-						$outcsv = Utils::Array2XML($aResult,'ModelResult', false);												
+						
 
 						$xml .= '<WeatherData>';
 						$xml .= '<WeatherScenarioSimpleResponseMessage xmlns:ns2="http://www.limetri.eu/schemas/ygg" xmlns:ns3="http://www.fispace.eu/domain/ag">'; 
@@ -90,21 +111,21 @@ class RunModel {
 						$xml .= '<endTime>'.$weather_obj->endTime.'</endTime>';
 						
 						for( $nV = 0; $nV < count($weather_obj->weatherVariable); $nV++ )
-						{
-							$xml .= '<weatherVariable>'.$weather_obj->weatherVariable[$nV].'</weatherVariable>';
-						}
+							{
+								$xml .= '<weatherVariable>'.$weather_obj->weatherVariable[$nV].'</weatherVariable>';
+							}
 						$xml .= '</WeatherScenarioSimpleResponseMessage>';
 						$xml .= '</WeatherData>';
 						$xml .= '<PestModel>';
 						$xml .= '<lowerThreshold>'.$model_obj->lowerThreshold.'</lowerThreshold>';
 						$xml .= '<upperThreshold>'.$model_obj->upperThreshold.'</upperThreshold>';
 						$xml .= '<requiredDayDegree>'.$model_obj->requiredDayDegree.'</requiredDayDegree>';
-						$xml .= '<values>'.$outcsv.'</values>';
+						
+						$modelResult = Utils::Array2XML($aResult,'ModelResult', false);
+						
+						$xml .= '<values>'.$modelResult.'</values>';
 						$xml .= '</PestModel>';
-					}
-				else{
-					$xml .= '<Message>'.$obj->message.'</Message>';
-				}	
+	
 				$xml .= '</RunPestModelResponseMessage>';
 				return $xml;		
 	}

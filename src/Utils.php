@@ -89,21 +89,30 @@ class Utils {
 	
 		curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
 		$response = curl_exec ($ch);
+		
+		$aBody = array();
+		if($errno = curl_errno($ch)) 
+			{
+				$aBody['ok'] = 0;
+				$aBody['message'] = curl_strerror($errno);
+			}
+		else
+			{
+				// Then, after your curl_exec call:
+				$header_size = curl_getinfo($ch, CURLINFO_HEADER_SIZE);
+				$header = substr($response, 0, $header_size);
+				$body = substr($response, $header_size);
 
-		// Then, after your curl_exec call:
-		$header_size = curl_getinfo($ch, CURLINFO_HEADER_SIZE);
-		$header = substr($response, 0, $header_size);
-		$body = substr($response, $header_size);
-
-		curl_close ($ch);
-		if($debug){
-			$ret_dbg.='<h3>Header</h3><pre>'.$header.'</pre>';
-			$ret_dbg.='<h3>Body</h3><pre>'.$body.'</pre>';
-			return $ret_dbg;
-		}
-		else{
-			return  $body;
-		}
+				curl_close ($ch);
+				
+				$aBody['ok'] = 1;
+				$aBody['body'] = $body;
+				if( $debug )
+					{
+						$aBody['debug'] ='<h3>Header</h3><pre>'.$header.'</pre><h3>Body</h3><pre>'.$body.'</pre>';
+					}
+			}
+		return $aBody;
 	}
 
 
