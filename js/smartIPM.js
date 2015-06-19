@@ -687,7 +687,7 @@ function exeModelWebGIS(){
 		var model_name=jQuery('#list_models li#model_'+current_model).text();
 
 		var html='<h3>'+ model_name+'</h3>';
-		html+='we need to run runModel.....';
+		html+='we need to run runModel..... ';
 
 		var options={
 			//weather data variable

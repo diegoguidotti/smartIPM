@@ -48,7 +48,7 @@ class RunModel {
 					if( $aBody['ok'] )
 						$objWeather = simplexml_load_string($aBody['body']);
 					else	
-						$objWeather = json_decode(json_encode($aBody), FALSE);
+						$objWeather = json_decode(json_encode($aBody), FALSE); 
 					//print_r($objWeather);
 				}
 				

@@ -94,7 +94,7 @@ class Utils {
 		if($errno = curl_errno($ch)) 
 			{
 				$aBody['ok'] = 0;
-				$aBody['message'] = curl_strerror($errno);
+				$aBody['message'] = curl_strerror($errno); 
 			}
 		else
 			{
