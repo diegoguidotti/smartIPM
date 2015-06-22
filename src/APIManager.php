@@ -165,6 +165,13 @@ class APIManager {
 				
 			});
 						
+			$r3->any('/api/dashboard/add', function() use ( $db ) {
+
+				$body = file_get_contents("php://input");
+			return dashboard_add($db, $body);
+				
+			});
+
 			$r3->any('/**', function ($url) {
 					return '{"ok": false, "msg": "Unvalid request", "url": '.json_encode($url).'}';
 			});
@@ -175,6 +182,19 @@ class APIManager {
 	
 }
 
+function dashboard_add($db, $body){
+	if($body==''){
+		return json_encode(Array('ok'=>false, 'message'=>'Empty input'));
+	}
+	else{
+		$uid="1";
+		$ret=	$db->select(
+			"insert into dashboard (uid, dashboard_input) values (:uid, :dashboard_input)", 
+			Array(':uid'=>$uid, ':dashboard_input'=>$body)
+		);
+		return json_encode($ret);
+	}
+}
 	
 
 function run_model($model, $weather){

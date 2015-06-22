@@ -76,5 +76,17 @@ CREATE TABLE weather_data_tmp
 WITH (
   OIDS=FALSE
 );
-ALTER TABLE weather_data_tmp
-  OWNER TO postgres;
+
+
+--------------------------------------------------------------------
+-- Added 22.06.2015
+--------------------------------------------------------------------
+CREATE TABLE dashboard
+(
+  id_dashboard serial NOT NULL,
+  dashboard_title character varying,
+  dashboard_input text,
+  uid 	character varying,
+  CONSTRAINT dashboard_pkey PRIMARY KEY (id_dashboard)
+)
+

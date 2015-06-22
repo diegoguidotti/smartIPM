@@ -143,6 +143,7 @@ function runModel(options){
 	console.log('Weather on url '+url_weather);	
 
 	xml = getXMLModel(options);
+	jQuery('#xml_input').val(JSON.stringify(options));
 	console.log("runModel [xml]:" + xml);
 	
 	var div_element='test_model';
@@ -234,8 +235,8 @@ function runWSS(options, exe_function){
 	console.log('api2 on url '+url);	
 
 	aWVar = Array('0 0 0');
+	jQuery('#xml_input').val(JSON.stringify(options));
 	xml = getXMLWSS(options);
-	console.log(xml);
 	
 	var div_element='test_api2';
 	console.log(options);
@@ -607,6 +608,7 @@ var marker;
 
 
 function init_map(){
+
 	jQuery( window ).resize(function() {
 			smartIPM_resize();
 		});
@@ -644,7 +646,6 @@ function exeModelWebGIS(){
 	console.log('exeModelWebGIS'+current_model);
 	var lat=jQuery('#latitude').val();
 	var lon=jQuery('#latitude').val();
-
 
 
 	if(current_model==0){
@@ -708,7 +709,6 @@ function exeModelWebGIS(){
 		runModel(options);
 
 
-
 		jQuery('#final_result').html(html);
 	}
 }
@@ -749,19 +749,20 @@ function createResult(){
 	html+='<a class="btn btn-primary" data-toggle="collapse" href="#parameters" aria-expanded="false" aria-controls="parameters">Parameters</a>';
 	html+="<div class='collapse' id='parameters'>";
 
-		html+='<div class="input-group"><span class="input-group-addon" id="basic-addon-lat">Lat</span><input id="latitude" type="text" class="form-control" placeholder="Latitude" aria-describedby="basic-addon-lat" value="43.70957890"></div>';
-		html+='<div class="input-group"><span class="input-group-addon" id="basic-addon-lon">Long</span><input id="longitude" type="text" class="form-control" placeholder="Longitude" aria-describedby="basic-addon-lon" value="10.557861328125"></div>';
-html+='<div class="input-group"><span class="input-group-addon" id="basic-addon-start">From</span><input id="startTime" type="text" class="form-control" placeholder="Start Time" aria-describedby="basic-addon-start" value="2014-07-01T00:00:00"></div>';
-html+='<div class="input-group"><span class="input-group-addon" id="basic-addon-end">To</span><input id="endTime" type="text" class="form-control" placeholder="End Time" aria-describedby="basic-addon-end" value="2014-12-31T00:00:00"></div>';
+		html+='<div class="input-group"><span class="input-group-addon" id="basic-addon-lat">Lat</span><input id="latitude" type="text" class="form-control" placeholder="Latitude" aria-describedby="basic-addon-lat" value="43.70957890"></input></div>';
+		html+='<div class="input-group"><span class="input-group-addon" id="basic-addon-lon">Long</span><input id="longitude" type="text" class="form-control" placeholder="Longitude" aria-describedby="basic-addon-lon" value="10.557861328125"></input></div>';
+html+='<div class="input-group"><span class="input-group-addon" id="basic-addon-start">From</span><input id="startTime" type="text" class="form-control" placeholder="Start Time" aria-describedby="basic-addon-start" value="2014-07-01T00:00:00"></input></div>';
+html+='<div class="input-group"><span class="input-group-addon" id="basic-addon-end">To</span><input id="endTime" type="text" class="form-control" placeholder="End Time" aria-describedby="basic-addon-end" value="2014-12-31T00:00:00"></input></div>';
 
-html+='<div class="input-group"><span class="input-group-addon" id="basic-addon-low">Low</span><input id="lowerThreshold" type="text" class="form-control" placeholder="lowerThreshold" aria-describedby="basic-addon-low" value="10"></div>';
+html+='<div class="input-group"><span class="input-group-addon" id="basic-addon-low">Low</span><input id="lowerThreshold" type="text" class="form-control" placeholder="lowerThreshold" aria-describedby="basic-addon-low" value="10"></input></div>';
 html+='<div class="input-group"><span class="input-group-addon" id="basic-addon-up">Up</span><input id="upperThreshold" type="text" class="form-control" placeholder="upperThreshold" aria-describedby="basic-addon-uo" value="40"></div>';
-html+='<div class="input-group"><span class="input-group-addon" id="basic-addon-cum">DD</span><input id="requiredDayDegree" type="text" class="form-control" placeholder="requiredDayDegree" aria-describedby="basic-addon-cum" value="369"></div>';
+html+='<div class="input-group"><span class="input-group-addon" id="basic-addon-cum">DD</span><input id="requiredDayDegree" type="text" class="form-control" placeholder="requiredDayDegree" aria-describedby="basic-addon-cum" value="369"></input></div>';
 
+html+='<div class="input-group"><span class="input-group-addon" id="basic-addon-xml">XML</span><textarea id="xml_input" type="text" class="form-control" placeholder="xml input" aria-describedby="basic-addon-xml" value=""></textarea></div>';
 
 
 	html+="</div>"
-	html+='<h3>Results</h3><div id="final_result">';
+	html+='<h3>Results</h3><button onClick="saveToDashboard()">Save to Dasboard</button><div id="final_result">';
 	html+='<div class="alert alert-info" role="alert">Click on the Map to run the selected model</div>';
 	html+='</div>';
 
@@ -791,3 +792,35 @@ function smartIPM_resize(){
 
 	jQuery('#smartIPM_map').height(hh-100);
 }
+
+
+function saveToDashboard(){
+
+	var options=(jQuery('#xml_input').val());
+
+	jQuery.ajax({
+    type: 'POST',
+    url: '/smartIPM/api/dashboard/add',
+		data: options,
+    dataType: 'json',
+    success: function(data){
+				console.log(data);
+    },
+    error: function(e){
+        console.log("Device control failed");
+				console.log(e);
+    },
+    processData: false
+  });
+
+}
+
+function init_dashboard(){
+
+
+	var html='DASHBOARD';
+
+	jQuery('#dashboard_container').html(html);
+
+}
+

@@ -7,6 +7,8 @@
 	use smartIPM\BasicLogin;
 	use smartIPM\ModelUtil;
 
+	$offline=true;
+
 	$db = Dbmng\Db::createDb($aSetting['DB']['DB_DSN'], $aSetting['DB']['DB_USER'], $aSetting['DB']['DB_PASSWD'] );
 
 	$app=new Dbmng\App($db, $aSetting);
@@ -15,8 +17,11 @@
 
 	$aPage['project']="smartIPM";
 	$aPage['title']="Home Page";
-	//$aPage['bootstrap_path']="/libraries/bootstrap/";
-	$aPage['bootstrap_path']="online";
+
+	if($offline)
+		$aPage['bootstrap_path']="/libraries/bootstrap/";
+	else
+		$aPage['bootstrap_path']="online";
 
 	$body="";
 	session_start();
@@ -36,7 +41,13 @@
 	$aPage['nav'][0]['link']='?sect=info';
 
 	//$body.='res: '.$ret['ok'].'|msg:'.$ret['message'].'|isAUt'.$login->isAut();
-	if(!$login->isAut())
+
+	$logged_in=$login->isAut();
+	if($offline){
+		$logged_in=true;
+	}
+
+	if(!$logged_in)
 		{
 			$aPage['navRight'][0]['title']='Login';
 			$aPage['navRight'][0]['link']='?do_login=true';
@@ -66,6 +77,11 @@
 			$aPage['nav'][6]['title']='webGIS';
 			$aPage['nav'][6]['link']='?sect=web_gis';
 
+			$aPage['nav'][7]['title']='dashboard';
+			$aPage['nav'][7]['link']='?sect=dashboard';
+
+			$aPage['nav'][8]['title']='Model Builder';
+			$aPage['nav'][8]['link']='?sect=model_builder';
 			//$body.='Hi '.$login->getUserNameFI()."!";
 
 			if(isset($_REQUEST['sect']))
@@ -90,7 +106,15 @@
 					}
 					else if($_REQUEST['sect']=='web_gis'){
 						$aPage['title']='WebGIS';
-						$body .= testWebGIS($app);
+						$body .= testWebGIS($app, $offline);
+					}
+					else if($_REQUEST['sect']=='dashboard'){
+						$aPage['title']='Dashboard';
+						$body .= testDashboard($app);
+					}
+					else if($_REQUEST['sect']=='model_builder'){
+						$aPage['title']='Model Builder';
+						$body .= testModelBuilder($app);
 					}
 				}
 			else
@@ -200,14 +224,20 @@
 		$html.='<script src="js/smartIPM.js"></script>
 						<div id="test_model_manager"></div>';
 		$html.="<script>jQuery(function(){testModelManager();});</script>";	
-
 		return $html;
 	}
 
-	function testWebGIS($app){
+	function testWebGIS($app, $offline){
 		$html='';
-		$html.='<script src="http://cdn.leafletjs.com/leaflet-0.7.3/leaflet.js"></script>';
-		$html.='<link href="http://cdn.leafletjs.com/leaflet-0.7.3/leaflet.css" rel="stylesheet" /> ';
+		if($offline){
+			$html.='<script src="/libraries/leaflet-0.7.3/leaflet.js"></script>';
+			$html.='<link href="/libraries/leaflet-0.7.3/leaflet.css" rel="stylesheet" /> ';
+		}
+		else{
+			$html.='<script src="http://cdn.leafletjs.com/leaflet-0.7.3/leaflet.js"></script>';
+			$html.='<link href="http://cdn.leafletjs.com/leaflet-0.7.3/leaflet.css" rel="stylesheet" /> ';
+		}
+
 		$html.='<script src="js/smartIPM.js"></script>
 
 				<div style="height:500px;" class="col-md-9 col-xs-9" id="smartIPM_map"></div>
@@ -222,4 +252,19 @@
 		
 		return $html;
 	}
+
+	function testDashboard($app){
+
+		$html="";
+		$html='<div id="dashboard_container"></div>';
+		$html.='<script src="js/smartIPM.js"></script>';
+		$html.="<script>jQuery(function(){init_dashboard();});</script>";	
+		return $html;
+	}
+
+	function testModelBuilder($app){
+		$html='We are working on it...';
+		return $html;
+	}
+
 ?>
