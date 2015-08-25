@@ -14,6 +14,8 @@
 		
 	}
 
+	session_start();
+	
 
 	$db = Dbmng\Db::createDb($aSetting['DB']['DB_DSN'], $aSetting['DB']['DB_USER'], $aSetting['DB']['DB_PASSWD'] );
 	$api = new smartIPM\APIManager($db, $aSetting);

@@ -7,7 +7,10 @@
 	use smartIPM\BasicLogin;
 	use smartIPM\ModelUtil;
 
-	$offline=true;
+	session_start();
+	
+
+	$offline=false;
 
 	$db = Dbmng\Db::createDb($aSetting['DB']['DB_DSN'], $aSetting['DB']['DB_USER'], $aSetting['DB']['DB_PASSWD'] );
 
@@ -24,16 +27,17 @@
 		$aPage['bootstrap_path']="online";
 
 	$body="";
-	session_start();
+
 
 	//$login=new smartIPM\BasicLogin($var);
-	$login=new smartIPM\FIWARELogin($aSetting['OAUTH2']);
+	$login=new smartIPM\FIWARELogin($db, $aSetting['OAUTH2']);
 
 
 	if(isset($_REQUEST['do_login'])){
 		$login->doLogin();
 	}
 	else if(isset($_REQUEST['do_logout'])){
+		$body.='';
 		$login->doLogout();
 	}
 	$ret = $login->checkLogin();
@@ -41,6 +45,13 @@
 	$aPage['nav'][0]['link']='?sect=info';
 
 	//$body.='res: '.$ret['ok'].'|msg:'.$ret['message'].'|isAUt'.$login->isAut();
+
+
+	$body.='<script type="text/javascript"    src="js/flot/jquery.flot.min.js"></script>';
+	$body.='<script type="text/javascript"    src="js/flot/jquery.flot.time.min.js"></script>';
+	$body.='<script type="text/javascript"    src="js/flot/jquery.flot.selection.min.js"></script>';
+
+	$body.='<link rel="stylesheet" href="css/smartIPM.css" /> ';
 
 	$logged_in=$login->isAut();
 	if($offline){
@@ -54,35 +65,60 @@
 		}
 	else
 		{
-			$aPage['navRight'][0]['title']=' Logout';
-			$aPage['navRight'][0]['link']='?do_logout=true';
-
-			$aPage['nav'][1]['title']='Test Oauth2';
-			$aPage['nav'][1]['link']='?sect=test_user';
-			//$aPage['nav'][2]['title']='Test DBMNG';
-			//$aPage['nav'][2]['link']='?sect=test_dbmng';
-			$aPage['nav'][3]['title']='Test API';
-			$aPage['nav'][3]['link']='?sect=test_api';
-
-			$aPage['nav'][4]['title']='Test API 2';
-			$aPage['nav'][4]['link']='?sect=test_api2';
-
-			$aPage['nav'][5]['title']='Test Model';
-			$aPage['nav'][5]['link']='?sect=test_model';
-
-			$aPage['nav'][6]['title']='Test Model Manager';
-			$aPage['nav'][6]['link']='?sect=test_model_manager';
+			$acc=$login->getAccount();
 
 
-			$aPage['nav'][6]['title']='webGIS';
-			$aPage['nav'][6]['link']='?sect=web_gis';
+			//$body.='<pre>'.print_r($acc,true)."</pre>";
 
-			$aPage['nav'][7]['title']='dashboard';
-			$aPage['nav'][7]['link']='?sect=dashboard';
 
-			$aPage['nav'][8]['title']='Model Builder';
-			$aPage['nav'][8]['link']='?sect=model_builder';
-			//$body.='Hi '.$login->getUserNameFI()."!";
+			//check role;
+			$isAdmin=false;
+
+			$aPage['navRight'][0]['title']='Hi '.$acc->firstName." ".$acc->lastName;
+			if($acc->roles){
+				foreach($acc->roles as $r ){
+					$role;
+					if(is_object($r)){
+						$role=$r->role;
+					}
+					else{
+						$role=$r['role'];
+					}
+					if($role=='admin'){
+						$isAdmin=true;
+					}
+				}
+			}			
+			
+
+			$aPage['navRight'][1]['title']='Logout';
+			$aPage['navRight'][1]['link']='?do_logout=true';
+
+			$aPage['nav'][0]['title']='webGIS';
+			$aPage['nav'][0]['link']='?sect=web_gis';
+
+			$aPage['nav'][1]['title']='dashboard';
+			$aPage['nav'][1]['link']='?sect=dashboard';
+
+			if($isAdmin){
+
+				$aPage['nav'][3]['title']='Test Oauth2';
+				$aPage['nav'][3]['link']='?sect=test_user';
+				
+				$aPage['nav'][4]['title']='Test API 2';
+				$aPage['nav'][4]['link']='?sect=test_api2';
+
+				$aPage['nav'][5]['title']='Test Model';
+				$aPage['nav'][5]['link']='?sect=test_model';
+
+				$aPage['nav'][6]['title']='Test Model Manager';
+				$aPage['nav'][6]['link']='?sect=test_model_manager';
+
+				$aPage['nav'][7]['title']='Model Builder';
+				$aPage['nav'][7]['link']='?sect=model_builder';
+			}
+			
+						
 
 			if(isset($_REQUEST['sect']))
 				{
@@ -154,6 +190,7 @@
 
 
 			$ret=$login->fetchUrl($url, true);
+			$html.='<pre>'.print_r($ret,true).'</pre>';
 
 			$html.=($ret);
 		}

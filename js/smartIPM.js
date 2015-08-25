@@ -121,7 +121,7 @@ function testModelRun(){
 		'url_model': jQuery('#url_model').val(),
 		
 		//output variable.
-		'div_element':'test_model'
+		'div_element':'#test_model'
 	}
 
 	runModel(options);
@@ -139,6 +139,8 @@ function runModel(options){
 	url_model=options.url_model;
 	url_weather=options.url_weather;
 
+	console.log(options);
+
 	console.log('Model on url '+url_model);	
 	console.log('Weather on url '+url_weather);	
 
@@ -146,47 +148,62 @@ function runModel(options){
 	jQuery('#xml_input').val(JSON.stringify(options));
 	console.log("runModel [xml]:" + xml);
 	
-	var div_element='test_model';
-	console.log(options);
+	var div_element='#test_model';
 	if(options.div_element){
 		div_element=options.div_element;
 	}
 
-	xmld = getModelData(url_model, xml);
-  jQuery(document).ajaxStop(function () {
-		//console.log("xmldata");
-		//console.log(xmldata);
-		modres = jQuery(xmldata).find('ModelResult');		
+	jQuery.ajax({
+		  type: 'POST',
+		  url: url_model,
+		  contentType: 'application/xml',
+		  data: xml,
+		  dataType: 'xml',
+		  success: function(data){
+					xmldata = data;
+		      console.log("getModelData: device control succeeded");
 
-		console.log(modres);
+					modres = jQuery(xmldata).find('ModelResult');		
 
-		var val=jQuery(modres).find('day_degree').text();
-		aVal = CSV2array( val );		
-		html = "Cumulated Day degree: " + aVal[0][0]+'<h3>Events</h3>';		
+					console.log(modres);
 
-		var ev=jQuery(modres).find('events');
-		jQuery.each(ev, function(k,v){
-			console.log(v);
-			v=jQuery(v);
-			html+='<li>'+v.find('label').text()+': '+v.find('value').text()+"</li>";
+					var val=jQuery(modres).find('day_degree').text();
+					aVal = CSV2array( val );		
+					html = "Cumulated Day degree: " + aVal[0][0]+'<h3>Events</h3>';		
+
+					var ev=jQuery(modres).find('events');
+					jQuery.each(ev, function(k,v){
+						console.log(v);
+						v=jQuery(v);
+						html+='<li>'+v.find('label').text()+': '+v.find('value').text()+"</li>";
+					});
+
+					jQuery(div_element).html(html);
+
+					return data;
+		  },
+		  error: function(e){
+		      console.log("getModelData: Device control failed");
+	// 				console.log(url);
+	// 				console.log(xml);
+					console.log(e);
+		  },
+		  processData: false
 		});
-
-		jQuery('#'+div_element).html(html);
-  });	
 
 }
 
 function testModelManager(){
 	var options = {
 		'url': '/smartIPM/api/model-manager',
-		'div_element':'test_model_manager'
+		'div_element':'#test_model_manager'
 	};
 	runModelManager(options);
 }
 
 function runModelManager(options){
 	
-	var div_element='test_model_manager';
+	var div_element='#test_model_manager';
 	console.log(options);
 	if(options.div_element){
 		div_element=options.div_element;
@@ -218,7 +235,7 @@ function runModelManager(options){
 		});
 		html += "</tbody>";
 		html += "</table>";
-		jQuery('#'+div_element).html(html);
+		jQuery(div_element).html(html);
   });	
 }
 
@@ -238,29 +255,46 @@ function runWSS(options, exe_function){
 	jQuery('#xml_input').val(JSON.stringify(options));
 	xml = getXMLWSS(options);
 	
-	var div_element='test_api2';
+	var div_element='#test_api2';
 	console.log(options);
 	if(options.div_element){
 		div_element=options.div_element;
 	}
 
-	xmld = getWeatherData(url, xml);
+	//xmld = getWeatherData(url, xml);
 
+	jQuery.ajax({
+		  type: 'POST',
+		  url: url,
+		  contentType: 'application/xml',
+		  data: xml,
+		  dataType: 'xml',
+		  success: function(data){
+					xmldata = data;
+					val = jQuery(xmldata).find('values').text();		
+					aVal = CSV2array( val );		
 
-		jQuery(document).ajaxStop(function () {
-			
-			val = jQuery(xmldata).find('values').text();		
-			aVal = CSV2array( val );		
-
-			if(exe_function){
-				exe_function(aVal);				
-			}
-			else{
-				html = array2Table( aVal );		
+					if(exe_function){
+						exe_function(aVal);				
+					}
+					else{
+						html = array2Table( aVal );		
 				
-				jQuery('#'+div_element).html(html);
-			}
-		});	
+						jQuery(div_element).html(html);
+					}
+
+
+					return data;
+		  },
+		  error: function(e){
+		      console.log("Device control failed");
+					console.log(e);
+		  },
+		  processData: false
+		});
+
+
+
 
 }
 
@@ -356,66 +390,9 @@ function getXMLModelManager( options ){
 }
 var xmldata;
 
-/////////////////////////////////////////////////////////////////////////////
-// getWeatherData
-// ======================
-// This function get the weather daily data
-/**
-\param server  server
-\param xml  valid xml generated from makeXML function
-\return xml with the daily data
-*/
-function getWeatherData( url, xml ){
-	jQuery.ajax({
-    type: 'POST',
-    url: url,
-    contentType: 'application/xml',
-    data: xml,
-    dataType: 'xml',
-    success: function(data){
-				xmldata = data;
-        console.log("device control succeeded");
-				//console.log(data);
-				return data;
-    },
-    error: function(e){
-        console.log("Device control failed");
-				console.log(e);
-    },
-    processData: false
-  });
-}
 
-/////////////////////////////////////////////////////////////////////////////
-// getModelData
-// ======================
-// This function get the weather daily data and calculate the Model
-/**
-\param server  server
-\param xml  valid xml generated from makeXML function
-\return xml with the daily data
-*/
-function getModelData( url, xml ){
-	jQuery.ajax({
-    type: 'POST',
-    url: url,
-    contentType: 'application/xml',
-    data: xml,
-    dataType: 'xml',
-    success: function(data){
-				xmldata = data;
-        console.log("getModelData: device control succeeded");
-				return data;
-    },
-    error: function(e){
-        console.log("getModelData: Device control failed");
-// 				console.log(url);
-// 				console.log(xml);
-				console.log(e);
-    },
-    processData: false
-  });
-}
+
+
 
 /////////////////////////////////////////////////////////////////////////////
 // getModelManagerData
@@ -502,6 +479,58 @@ function array2Table( aVal ) {
 	
 	return html;
 }
+
+
+
+function array2Chart(aVal, opt){               
+    var data=aVal;
+    var dt2 = new Array();
+    var dtc = new Array();
+     jQuery.each(data , function(ii, dat) {
+        if(dat){
+            var d= parseDateSQL(dat[0]).getTime();
+            dtc.push([d, dat[1]]);
+        }
+    });
+    dt2.push({data: dtc, label:'average_data'});
+    
+    if(data){
+				jQuery(opt.div_element).html('');
+        var plot=jQuery.plot(opt.div_element,  dt2 , getSmartIPMChartOption());
+    }        
+    
+}
+
+
+function getSmartIPMChartOption(){
+    return {
+        series: {
+                lines: {
+                        show: true
+                }
+                ,
+                points: {
+                        show: true
+                }
+        },
+        xaxis: {
+                mode: "time"
+        },
+        selection: {
+            mode: "x"
+        },
+        legend: {
+            show: false
+        },
+        grid: {
+                hoverable: true,
+                clickable: true
+        }
+    };
+}
+
+
+
 
 //simple test on test api
 function searchStation(){
@@ -657,7 +686,7 @@ function exeModelWebGIS(){
 			'endTime': jQuery('#endTime').val(),
 			'url': '/smartIPM/api/weather-scenario-simple',
 			'weatherVariable': Array('0 0 0'),
-			'div_element': 'final_result' 
+			'div_element': '#final_result' 
 		}
 
 		runWSS(options, function createChart(aVal){
@@ -667,18 +696,19 @@ function exeModelWebGIS(){
 				jQuery.each(aVal, function(k,v){
 					v[0]=v[0].substring(0,10);
 				});
-				
-				
-				
 
- 				if( aVal.length > 1 )
-					html = array2Table( aVal );
- 				else
- 					html = "No data available!";
-				
-				jQuery('#final_result').html(html);
+				jQuery('#final_result').html('<div id="weather_container" style="width:200px; height:200px;"></div>');
 
-				jQuery('#final_result table').addClass('table');
+ 				if( aVal.length > 1 ){
+					
+					array2Chart( aVal , {'div_element':'#weather_container'});
+				}
+ 				else{
+ 					html = "No data available!";				
+					jQuery('#final_result').html(html);
+				}
+
+				//jQuery('#final_result table').addClass('table');
 
 				
 			});
@@ -713,6 +743,19 @@ function exeModelWebGIS(){
 	}
 }
 
+ 
+ function parseDate(input) {
+    var parts = input.split('-');
+    // new Date(year, month [, date [, hours[, minutes[, seconds[, ms]]]]])
+    return new Date(parts[2], parts[1]-1, parts[0]); // months are 0-based
+}
+
+function parseDateSQL(input) {
+    var parts = input.split('-');
+    // new Date(year, month [, date [, hours[, minutes[, seconds[, ms]]]]])
+
+    return new Date(parts[0], parts[1]-1, parts[2]); // months are 0-based
+}
 
 function updateListModels(){
 	var options = {
@@ -804,6 +847,7 @@ function saveToDashboard(){
 		data: options,
     dataType: 'json',
     success: function(data){
+				console.log('OK');
 				console.log(data);
     },
     error: function(e){
@@ -820,7 +864,75 @@ function init_dashboard(){
 
 	var html='DASHBOARD';
 
-	jQuery('#dashboard_container').html(html);
+
+	var cls="panel panel-default col-md-3 col-xs-3";
+
+	jQuery.ajax({
+    type: 'POST',
+    url: '/smartIPM/api/dashboard',	
+    dataType: 'json',
+    success: function(data){
+				console.log('OK');
+				console.log(data);
+
+
+				console.log(data.data.length);
+				jQuery.each(data.data, function (k,v){
+					
+					var html='<div class="'+cls+' dashboard_tile" id="dashboard_el_'+k+' >';
+					html+='<div class="panel-heading">Title</div>'
+					html+='<div class="panel-body" class="col-md-12" id="dashboard_'+k+'"><img src="resources/waiting.gif"/></div></div>';
+					jQuery('#dashboard_container').append(html);
+
+					//jQuery('#dashboard_el_'+k).height(jQuery('#dashboard_el_'+k).width());
+
+					var options=JSON.parse(v.dashboard_input);
+					
+					options.div_element='#dashboard_'+k;
+
+					var url_model=options.url_model;
+
+					setTimeout(function(){
+
+						console.log('!!!!!!!!!Esegui '+k+' '+url_model );
+						console.log(options);
+
+						if(typeof url_model=='undefined'){
+							runWSS(options, function createChart(aVal){
+								jQuery.each(aVal, function(k,v){
+									v[0]=v[0].substring(0,10);
+								});
+				 				if( aVal.length > 1 ){	
+									console.log('SET CHAT TO '+options.div_element);			
+									array2Chart( aVal , {'div_element':options.div_element});
+								}
+				 				else{
+				 					html = "No data available!";				
+									jQuery('#final_result').html(html);
+								}
+
+								//jQuery('#final_result table').addClass('table');
+
+			
+							});
+						}
+						else{
+							runModel(options);
+						}
+					},200*k);
+
+				})
+
+				
+    },
+    error: function(e){
+        console.log("Device control failed");
+				console.log(e);
+    },
+    processData: false
+  });
+
+	
 
 }
 

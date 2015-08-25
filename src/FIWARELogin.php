@@ -15,19 +15,27 @@ class FIWARELogin {
 	private $client;
 	private $var;
 	private $isAut;	
-	public $accessToken;
+	private $accessToken;
+	private $account;
+	private $db;
+
 //https://bitbucket.org/fispace/archetypes/src/9d48242877293ebdd6d040d1453b876ba37cb2dc/app-widget/src/main/resources/?at=default
 
-	public function __construct($var)
+	public function __construct($db, $var)
     {
-		$this->var=$var;
+			$this->var=$var;
+			$this->db=$db;
 				
-		$this->client = new \OAuth2\Client($this->var['CLIENT_ID'], $this->var['CLIENT_SECRET']);
-		$this->isAut=false;
+			$this->client = new \OAuth2\Client($this->var['CLIENT_ID'], $this->var['CLIENT_SECRET']);
+			$this->isAut=false;
+			$this->account=Array();
     }
 
     public function doLogout(){
+		 
+
     	unset($_SESSION['smartIPM_access_token']);
+    	unset($_SESSION['smartIPM_account']);
     }
 
     public function doLogin(){
@@ -46,7 +54,9 @@ class FIWARELogin {
 		if(isset($_SESSION['smartIPM_access_token'])){
 			$aut=true;
 			$this->accessToken=$_SESSION['smartIPM_access_token'];
+			$this->account=json_decode($_SESSION['smartIPM_account']);
 
+			
 
 			$msg="session exist";
 		}
@@ -68,6 +78,10 @@ class FIWARELogin {
 		$ret2['ok']=$aut;
 		$ret2['message']=$msg;
 		$this->isAut=$aut;
+
+
+		
+
 		return $ret2;
     }
 
@@ -87,14 +101,43 @@ class FIWARELogin {
         else{
         	$ret['ok']=true;	
 
-			//Use the following for FIWare KeyRock
-			//$this->access_token=$response['info']['access_token'];		
-			$this->access_token=$response['result']['access_token'];
-			 
- 	     	$this->isAut=true;
-
-			//echo("<pre>".print_r($response,true)."</pre>");
+					//Use the following for FIWare KeyRock
+					//$this->access_token=$response['info']['access_token'];		
+					$this->access_token=$response['result']['access_token'];
+				 
+	 	     	$this->isAut=true;			
         	$_SESSION['smartIPM_access_token']=$this->access_token;
+
+
+					//echo('Account endpoint: '.$this->var['ACCOUNT_ENDPOINT']);
+					//echo('<br/>Token: '.$this->access_token);
+
+					$this->account=$this->fetchUrl($this->var['ACCOUNT_ENDPOINT'], false, $this->access_token);
+
+					//print_r($this->account);
+
+					$res = $this->db->select("select * from users WHERE id_user=:id ", Array(":id"=>$this->account->id));					
+
+					if(count($res['data'])==0){
+						$res = $this->db->select("insert into users (id_user,username, email, last_login) values (:id,:username, :email, Now()) ", 
+							Array(":id"=>$this->account->id,":username"=>$this->account->username,":email"=>$this->account->email)
+						);				
+					}
+					else{
+						$res = $this->db->select("update users set last_login=Now() WHERE id_user=:id;", 
+							Array(":id"=>$this->account->id)
+						);										
+						$res = $this->db->select("select role from users_role WHERE id_user=:id;", 
+							Array(":id"=>$this->account->id)
+						);	
+						$this->account->roles=$res['data'];
+
+					}
+					//print_r($res);
+
+					//print_r($this->account);
+					$_SESSION['smartIPM_account']=json_encode($this->account);
+
         	//echo "Setted session to".$this->access_token;
 
       	}
@@ -103,9 +146,12 @@ class FIWARELogin {
 
 
 
-    public function fetchUrl($url, $debug=false){
+    public function fetchUrl($url, $debug=false, $accessToken=null){
 			$ret_dbg="";
 
+			if($accessToken==null){
+				$accessToken=$this->accessToken;
+			}
 
 			/*
 			echo("<pre>".print_r($_SESSION,true)."</pre>");
@@ -131,10 +177,10 @@ class FIWARELogin {
 			curl_setopt($ch, CURLOPT_HEADER, 1);
 
 			$headers = array();
-			//$headers[] = 'X-Auth-Token: '.$this->accessToken;
+			//$headers[] = 'X-Auth-Token: '.$accessToken;
 			$headers[] = 'Content-Type: application/json';
 			$headers[] = 'Accept: application/json';
-			$headers[] = 'Authorization: Bearer '.$this->accessToken;
+			$headers[] = 'Authorization: Bearer '.$accessToken;
 		
 			curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
 			$response = curl_exec ($ch);
@@ -147,7 +193,8 @@ class FIWARELogin {
 			curl_close ($ch);
 			if($debug){
 				
-				$ret_dbg.='<h3>Token</h3>'.$this->accessToken;
+				$ret_dbg.='<h3>URL</h3>'.$url;
+				$ret_dbg.='<h3>Token</h3>'.$accessToken;
 				$ret_dbg.='<h3>Header</h3><pre>'.$header.'</pre>';
 				$ret_dbg.='<h3>Body</h3><pre>'.$body.'</pre>';
 				return $ret_dbg;
@@ -157,7 +204,9 @@ class FIWARELogin {
 			}
     }
 
-    
+    public function getAccount(){
+			return $this->account;
+		}
 
     public function isAut(){
     	return $this->isAut;

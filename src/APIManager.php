@@ -7,17 +7,19 @@
 
 namespace smartIPM;
 use Respect\Rest\Router;
+use smartIPM\FIWARELogin;
  
 class APIManager {
 
 	private $db;
 	private $aSetting;
-
+	private $login;
 		
     public function __construct($db, $aSetting)
     {
 			$this->db=$db;
 			$this->aSetting=$aSetting;
+			$this->login=new FIWARELogin($db, $aSetting['OAUTH2']);
     }
 
 
@@ -27,6 +29,8 @@ class APIManager {
 
 			$db=$this->db;
 
+
+			$isAut=$this->login->checkLogin();
 
 			$r3->any('/api/weather/', function() use ($db) {
 				$body = file_get_contents("php://input");
@@ -145,7 +149,7 @@ class APIManager {
 
 			});
 			
-			$r3->any('/api/run-model/', function() use ( $db ) {
+			$r3->any('/api/run-model/', function() use ( $db, $api ) {
 
 				$body = file_get_contents("php://input");				
 
@@ -155,7 +159,7 @@ class APIManager {
 				
 			});
 						
-			$r3->any('/api/model-manager/', function() use ( $db ) {
+			$r3->any('/api/model-manager/', function() use ( $db, $api ) {
 
 				$body = file_get_contents("php://input");
 
@@ -164,13 +168,22 @@ class APIManager {
 				return $runModelManager->exeApi($body);
 				
 			});
-						
-			$r3->any('/api/dashboard/add', function() use ( $db ) {
+					
+
+			$r3->any('/api/dashboard/add', function() use ( $db, $api ) {
 
 				$body = file_get_contents("php://input");
-			return dashboard_add($db, $body);
+				return $api->dashboard_add($db, $body);
 				
 			});
+
+			$r3->any('/api/dashboard', function() use ( $db, $api ) {
+
+				$body = file_get_contents("php://input");
+				return $api->dashboard($db, $body);
+				
+			});
+	
 
 			$r3->any('/**', function ($url) {
 					return '{"ok": false, "msg": "Unvalid request", "url": '.json_encode($url).'}';
@@ -178,24 +191,37 @@ class APIManager {
 		}
 	
 
+		function dashboard($db, $body){
 
+			$acc=$this->login->getAccount();
+			
+			$uid=$acc->id; //"1";
+			$ret=	$db->select(
+				"select * from dashboard WHERE uid=:uid", 
+				Array(':uid'=>$uid)
+			);
+			return json_encode($ret);
+		}
+
+		function dashboard_add($db, $body){
+			if($body==''){
+				return json_encode(Array('ok'=>false, 'message'=>'Empty input'));
+			}
+			else{
+				$acc=$this->login->getAccount();
+				$uid=$acc->id; //"1";
+
+				$ret=	$db->select(
+					"insert into dashboard (uid, dashboard_input) values (:uid, :dashboard_input)", 
+					Array(':uid'=>$uid, ':dashboard_input'=>$body)
+				);
+				return json_encode($ret);
+			}
+		}
+	
 	
 }
 
-function dashboard_add($db, $body){
-	if($body==''){
-		return json_encode(Array('ok'=>false, 'message'=>'Empty input'));
-	}
-	else{
-		$uid="1";
-		$ret=	$db->select(
-			"insert into dashboard (uid, dashboard_input) values (:uid, :dashboard_input)", 
-			Array(':uid'=>$uid, ':dashboard_input'=>$body)
-		);
-		return json_encode($ret);
-	}
-}
-	
 
 function run_model($model, $weather){
 
