@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Template xmlns="http://wirecloud.conwet.fi.upm.es/ns/template#">
+
+    <Catalog.ResourceDescription>
+        <Vendor>Aedit</Vendor>
+        <Name>SmartIPMRunModel</Name>
+        <DisplayName>SmartIPM RunModel</DisplayName>
+        <Author>Diego Guidotti, Michele Mammini</Author>
+        <Version>1</Version>
+        <Mail>diego.guidotti@gmail.com</Mail>
+        <Description>Showing a smartIPM model results</Description>
+        <ImageURI>images/logo.png</ImageURI>
+        <iPhoneImageURI>images/logo.png</iPhoneImageURI>
+        <WikiURI>http://conwet.fi.upm.es/docs/display/wirecloud/Widgets</WikiURI>
+    </Catalog.ResourceDescription>
+
+    <Platform.Preferences>
+        <Preference name="url" type="text" description="Basic URL" label="URL" default="http://www.smartipm.eu/smartIPM/api/"/>
+        <Preference name="latitude" type="text" description="Latitude" label="Latitude" default="43.35012"/>
+        <Preference name="longitude" type="text" description="Longitude" label="Longitude" default="10.52148"/>
+        <Preference name="start_date" type="text" description="Start Date" label="Start Date" default="j1"/>
+        <Preference name="end_date" type="text" description="End date" label="End Date" default="t"/>
+        <Preference name="lowerThreshold" type="text" description="lowerThreshold" label="lower Threshold" default="10"/>
+        <Preference name="requiredDayDegree" type="text" description="requiredDayDegree" label="requiredDayDegree" default="500"/>        
+    </Platform.Preferences>
+
+    <Platform.Wiring>
+        <OutputEndpoint name="outputValue" type="text" label="output" description="Input Value" friendcode="keyword"/>
+        <InputEndpoint  name="inputValue"  type="text" label="input"  description="Output Value" friendcode="keyword"/>
+    </Platform.Wiring>
+
+    <Platform.Link>
+        <XHTML
+            href="index.html"
+            contenttype="text/html"
+            cacheable="false"
+            use-platform-style="true"/>
+    </Platform.Link>
+
+    <Platform.Rendering width="5" height="12"/>
+</Template>

@@ -19,7 +19,7 @@
   $aPage=Array();
 
 	$aPage['project']="smartIPM";
-	$aPage['title']="Home Page";
+	$aPage['title']="Smart Integrated Pest Management";
 
 	if($offline)
 		$aPage['bootstrap_path']="/libraries/bootstrap/";
@@ -40,18 +40,38 @@
 		$body.='';
 		$login->doLogout();
 	}
-	$ret = $login->checkLogin();
-	$aPage['nav'][0]['title']='Info';
-	$aPage['nav'][0]['link']='?sect=info';
+	$ret = $login->checkLogin();	
 
 	//$body.='res: '.$ret['ok'].'|msg:'.$ret['message'].'|isAUt'.$login->isAut();
 
-
+	//Load library
 	$body.='<script type="text/javascript"    src="js/flot/jquery.flot.min.js"></script>';
 	$body.='<script type="text/javascript"    src="js/flot/jquery.flot.time.min.js"></script>';
 	$body.='<script type="text/javascript"    src="js/flot/jquery.flot.selection.min.js"></script>';
+	$body.='<script type="text/javascript"    src="js/xmlToJSON.js"></script>';
 
+	$body.='<script type="text/javascript"    src="js/jquery-ui.min.js"></script>';
+	$body.='<link rel="stylesheet" href="js/jquery-ui.min.css" /> ';
+
+	if($offline){
+		$body.='<script src="/libraries/leaflet-0.7.3/leaflet.js"></script>';
+		$body.='<link href="/libraries/leaflet-0.7.3/leaflet.css" rel="stylesheet" /> ';
+	}
+	else{
+		$body.='<script src="http://cdn.leafletjs.com/leaflet-0.7.3/leaflet.js"></script>';
+		$body.='<link href="http://cdn.leafletjs.com/leaflet-0.7.3/leaflet.css" rel="stylesheet" /> ';
+	}
+
+
+	//custom JS and CSS
 	$body.='<link rel="stylesheet" href="css/smartIPM.css" /> ';
+	$body.='<script type="text/javascript"    src="js/smartIPM.js"></script>';
+
+
+
+
+
+	//$body.='<a target="_NEW" href="https://github.com/diegoguidotti/smartIPM"><img style="z-index:1111; position: absolute; top: 0; right: 0; border: 0;" src="https://camo.githubusercontent.com/e7bbb0521b397edbd5fe43e7f760759336b5e05f/68747470733a2f2f73332e616d617a6f6e6177732e636f6d2f6769746875622f726962626f6e732f666f726b6d655f72696768745f677265656e5f3030373230302e706e67" alt="Fork me on GitHub" data-canonical-src="https://s3.amazonaws.com/github/ribbons/forkme_right_green_007200.png"></a>';
 
 	$logged_in=$login->isAut();
 	if($offline){
@@ -62,6 +82,12 @@
 		{
 			$aPage['navRight'][0]['title']='Login';
 			$aPage['navRight'][0]['link']='?do_login=true';
+
+			$aPage['nav'][0]['title']='';
+			$aPage['nav'][0]['link']='?';
+
+			$body.=getHome();
+
 		}
 	else
 		{
@@ -72,8 +98,7 @@
 
 
 			//check role;
-			$isAdmin=false;
-
+			$isAdmin=false;			
 			$aPage['navRight'][0]['title']='Hi '.$acc->firstName." ".$acc->lastName;
 			if($acc->roles){
 				foreach($acc->roles as $r ){
@@ -94,14 +119,15 @@
 			$aPage['navRight'][1]['title']='Logout';
 			$aPage['navRight'][1]['link']='?do_logout=true';
 
-			$aPage['nav'][0]['title']='webGIS';
-			$aPage['nav'][0]['link']='?sect=web_gis';
+			$aPage['nav'][0]['title']='Run a Model';
+			$aPage['nav'][0]['link']='?sect=run_model';
 
-			$aPage['nav'][1]['title']='dashboard';
+			$aPage['nav'][1]['title']='Dashboard';
 			$aPage['nav'][1]['link']='?sect=dashboard';
 
 			if($isAdmin){
 
+				/*
 				$aPage['nav'][3]['title']='Test Oauth2';
 				$aPage['nav'][3]['link']='?sect=test_user';
 				
@@ -116,6 +142,7 @@
 
 				$aPage['nav'][7]['title']='Model Builder';
 				$aPage['nav'][7]['link']='?sect=model_builder';
+				*/
 			}
 			
 						
@@ -140,8 +167,8 @@
 					else if($_REQUEST['sect']=='test_model_manager'){
 						$body .= testModelManager($app);
 					}
-					else if($_REQUEST['sect']=='web_gis'){
-						$aPage['title']='WebGIS';
+					else if($_REQUEST['sect']=='run_model'){
+						$aPage['title']='Run a Model';
 						$body .= testWebGIS($app, $offline);
 					}
 					else if($_REQUEST['sect']=='dashboard'){
@@ -159,14 +186,30 @@
 				}
 		}
 
+
+		$body.='<div id="smartipm_footer" class="row"><div class="col-xs-12 text-center"><img class="center-block img-responsive" src="resources/footer.png" /></div></div>';
 		$aPage['content']=$body;
+
+		
+
     $layout = new Dbmng\Layout($aPage);
 			
 	$html=$layout->getLayout();
 	echo $html;
 
 	function getHome(){
-		$html='Welcome to the smartAgriFood project smartIPM. ';
+
+		
+		$html="<script>jQuery(function(){init_home();});</script>";	
+
+
+		$txt="Integrated pest management are major actions for sustainable agriculture promoted by the EU. We propose a set of modular applications adopting FIWARE and FISPACE technologies to develop Decision Support System (DSS) in support of area­wide IPM. You can login into the system with a valid FISPACE Experimentation Environment account.";	
+
+		$html.='<div class="row"><div class="col-md-4"><img class="center-block img-responsive" src="resources/smartIPM.png"/><div style="text-align: justify" class="panel panel-default">
+  <div class="panel-body">'.$txt.'</div></div></div><div class="col-md-8">
+				<div class="embed-responsive embed-responsive-16by9">
+  				<iframe class="embed-responsive-item" src="https://www.youtube.com/embed/zRCmLWIqOZM"></iframe>
+				</div></div></div>';
 		return $html;
 	}
 
@@ -228,7 +271,7 @@
 
 		$html='test Api';
 
-		$html.='<script src="js/smartIPM.js"></script><div id="test_api"></div>';
+		
 		$html.="<script>jQuery(function(){testApi();});</script>";	
 
 		return $html;
@@ -237,7 +280,7 @@
 	function testApi2($app){
 
 		$html='test Api 2';
-		$html.='<script src="js/smartIPM.js"></script><div id="form_test_api2"></div><div id="test_api2"></div>';
+		$html.='<div id="form_test_api2"></div><div id="test_api2"></div>';
 		$html.="<script>jQuery(function(){testApi2();});</script>";	
 		
 		return $html;
@@ -245,7 +288,7 @@
 
 	function testModel($app){
 		$html='test Model';
-		$html.='<script src="js/smartIPM.js"></script>
+		$html.='
 						<p>Weather parameters</p><div id="form_test_weather"></div>
 						<p>Model parameters</p><div id="form_test_model"></div>
 						<p>Result</p><div id="test_model"></div>';
@@ -258,7 +301,7 @@
 	
 	function testModelManager($app){
 		$html='test Model Manager';
-		$html.='<script src="js/smartIPM.js"></script>
+		$html.='
 						<div id="test_model_manager"></div>';
 		$html.="<script>jQuery(function(){testModelManager();});</script>";	
 		return $html;
@@ -266,19 +309,12 @@
 
 	function testWebGIS($app, $offline){
 		$html='';
-		if($offline){
-			$html.='<script src="/libraries/leaflet-0.7.3/leaflet.js"></script>';
-			$html.='<link href="/libraries/leaflet-0.7.3/leaflet.css" rel="stylesheet" /> ';
-		}
-		else{
-			$html.='<script src="http://cdn.leafletjs.com/leaflet-0.7.3/leaflet.js"></script>';
-			$html.='<link href="http://cdn.leafletjs.com/leaflet-0.7.3/leaflet.css" rel="stylesheet" /> ';
-		}
+		
 
-		$html.='<script src="js/smartIPM.js"></script>
+		$html.='
 
-				<div style="height:500px;" class="col-md-9 col-xs-9" id="smartIPM_map"></div>
-					<div class="col-md-3 col-xs-3"  id="side_container">
+				<div style="height:500px;" class="col-md-9 col-sm-6 col-xs-6" id="smartIPM_map"></div>
+					<div class="col-md-3 col-sm-6 col-xs-6"  id="side_container">
 						<div class=""  id="list_models"></div>
 						<div class=""  id="smartIPM_results"><h3>Res</h3></div>
 					</div>';
@@ -294,7 +330,7 @@
 
 		$html="";
 		$html='<div id="dashboard_container"></div>';
-		$html.='<script src="js/smartIPM.js"></script>';
+		
 		$html.="<script>jQuery(function(){init_dashboard();});</script>";	
 		return $html;
 	}

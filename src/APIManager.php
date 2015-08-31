@@ -177,6 +177,27 @@ class APIManager {
 				
 			});
 
+			$r3->any('/api/dashboard/delete/*', function($id_dashboard) use ( $db, $api ) {
+
+				
+				return $api->dashboard_delete($db, $id_dashboard);
+				
+			});
+
+
+			$r3->any('/api/dashboard/move/*/*', function($id_dashboard, $dashboard_order) use ( $db, $api ) {
+
+				
+				return $api->dashboard_move($db,$id_dashboard, $dashboard_order);
+				
+			});
+
+			$r3->any('/api/dashboard/update/*', function($id_dashboard) use ( $db, $api ) {
+
+				$body = file_get_contents("php://input");
+				return $api->dashboard_update($db, $body, $id_dashboard);				
+			});
+
 			$r3->any('/api/dashboard', function() use ( $db, $api ) {
 
 				$body = file_get_contents("php://input");
@@ -194,12 +215,38 @@ class APIManager {
 		function dashboard($db, $body){
 
 			$acc=$this->login->getAccount();
-			
-			$uid=$acc->id; //"1";
+			$uid=null;
+
+
+			if(($acc)!=Array())
+				$uid=$acc->id; //"1";
+
+
+			if(isset($_REQUEST['username'])){
+				$ret=	$db->select(
+					"select id_user from users WHERE username=:username", 
+					Array(':username'=>$_REQUEST['username'])
+				);
+				if(($ret['rowCount']>0)){
+					$uid=$ret['data'][0]['id_user'];
+				}
+			}	
+
+
 			$ret=	$db->select(
-				"select * from dashboard WHERE uid=:uid", 
+				"select * from dashboard WHERE uid=:uid order by dashboard_order, id_dashboard ", 
 				Array(':uid'=>$uid)
 			);
+			$ret['user_id']=$uid;
+
+			
+
+			$at=null;
+			if(isset($_REQUEST['access_token'])){
+				$at=$_REQUEST['access_token'];
+			}
+			$ret['access_token']=$at;
+
 			return json_encode($ret);
 		}
 
@@ -211,12 +258,98 @@ class APIManager {
 				$acc=$this->login->getAccount();
 				$uid=$acc->id; //"1";
 
+
+		
+				$dashboard_title='';
+				//try{
+					$dashboard_title=json_decode($body)->dashboard_title;	
+				//}catch($e){;}
+	
+
 				$ret=	$db->select(
-					"insert into dashboard (uid, dashboard_input) values (:uid, :dashboard_input)", 
-					Array(':uid'=>$uid, ':dashboard_input'=>$body)
+					"insert into dashboard (uid, dashboard_title, dashboard_input) values (:uid, :dashboard_title, :dashboard_input)", 
+					Array(':uid'=>$uid, ':dashboard_title'=>$dashboard_title, ':dashboard_input'=>$body)
 				);
 				return json_encode($ret);
 			}
+		}
+
+
+		function dashboard_delete($db, $id_dashboard){
+			
+				$acc=$this->login->getAccount();
+				$uid=$acc->id; //"1";
+
+				//take the dashboard order to resort it
+				$ret=	$db->select(
+					"select dashboard_order from dashboard WHERE uid=:uid AND id_dashboard=:id_dashboard", 
+					Array(':uid'=>$uid, ':id_dashboard'=>$id_dashboard)
+				);				
+				$old_pos=$ret['data'][0]['dashboard_order'];
+				
+				$ret=	$db->select(
+						"UPDATE dashboard set dashboard_order=dashboard_order-1 WHERE uid=:uid AND dashboard_order>=:old_pos ", 
+						Array(':uid'=>$uid, ':old_pos'=>$old_pos)
+					);
+
+				$ret=	$db->select(
+					"delete from dashboard WHERE uid=:uid AND id_dashboard=:id_dashboard", 
+					Array(':uid'=>$uid, ':id_dashboard'=>$id_dashboard)
+				);
+				return json_encode($ret);
+
+		}
+	
+			function dashboard_move($db, $id_dashboard, $dashboard_order){
+			
+				$acc=$this->login->getAccount();
+				$uid=$acc->id; //"1";
+
+				$ret=	$db->select(
+					"select dashboard_order from dashboard WHERE uid=:uid AND id_dashboard=:id_dashboard", 
+					Array(':uid'=>$uid, ':id_dashboard'=>$id_dashboard)
+				);
+				//print_r($ret);
+				$old_pos=$ret['data'][0]['dashboard_order'];
+				//echo "MOve from: ".$old_pos." to ".$dashboard_order;
+					
+				if($dashboard_order-$old_pos>0){
+					$ret=	$db->select(
+						"UPDATE dashboard set dashboard_order=dashboard_order-1 WHERE uid=:uid AND dashboard_order<=:dashboard_order AND dashboard_order>:old_pos", 
+						Array(':dashboard_order'=>$dashboard_order, ':uid'=>$uid, ':old_pos'=>$old_pos)
+					);
+				}
+				else if ($dashboard_order-$old_pos<0) {
+					$ret=	$db->select(
+						"UPDATE dashboard set dashboard_order=dashboard_order+1 WHERE uid=:uid AND dashboard_order>=:dashboard_order AND dashboard_order<:old_pos", 
+						Array(':dashboard_order'=>$dashboard_order, ':uid'=>$uid, ':old_pos'=>$old_pos)
+					);
+
+				}
+
+				
+				$ret=	$db->select(
+					"UPDATE dashboard set dashboard_order=:dashboard_order WHERE uid=:uid AND id_dashboard=:id_dashboard", 
+					Array(':dashboard_order'=>$dashboard_order, ':uid'=>$uid, ':id_dashboard'=>$id_dashboard)
+				);
+
+				return json_encode($ret);
+				
+			
+		}
+
+
+		function dashboard_update($db, $body, $id_dashboard){
+			
+				$acc=$this->login->getAccount();
+				$uid=$acc->id; //"1";
+
+				$dashboard_title=json_decode($body)->dashboard_title;	
+				$ret=	$db->select("UPDATE dashboard set dashboard_title=:dashboard_title, dashboard_input=:dashboard_input WHERE uid=:uid AND id_dashboard=:id_dashboard;", 
+					Array( ':dashboard_title'=>$dashboard_title, ':dashboard_input'=>$body, ':uid'=>$uid, ':id_dashboard'=>$id_dashboard)
+				);
+
+				return json_encode($ret);			
 		}
 	
 	

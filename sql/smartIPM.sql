@@ -81,6 +81,23 @@ WITH (
 --------------------------------------------------------------------
 -- Added 22.06.2015
 --------------------------------------------------------------------
+
+CREATE TABLE users
+(
+  id_user uuid NOT NULL,
+  username character varying,
+  email text,
+  last_login timestamp with time zone,
+  CONSTRAINT users_pkey PRIMARY KEY (id_user)
+);
+
+CREATE TABLE users_role
+(
+  id_user uuid NOT NULL,
+  "role" character varying NOT NULL,
+  CONSTRAINT users_role_pkey PRIMARY KEY (id_user, role)
+);
+
 CREATE TABLE dashboard
 (
   id_dashboard serial NOT NULL,
@@ -88,5 +105,30 @@ CREATE TABLE dashboard
   dashboard_input text,
   uid 	character varying,
   CONSTRAINT dashboard_pkey PRIMARY KEY (id_dashboard)
-)
+);
+
+
+ALTER TABLE dashboard ADD COLUMN dashboard_order integer;
+
+CREATE OR REPLACE FUNCTION _smartipm_update_order()
+  RETURNS trigger AS
+$BODY$	
+DECLARE
+	max_val integer;
+	old_order integer;
+BEGIN
+	
+	execute 'select max(dashboard_order) from dashboard WHERE uid='''|| NEW.uid ||'''' INTO max_val;
+	IF (max_val is null) then
+		max_val=0;
+	END IF;			
+	RAISE INFO 'aaaa %', 	max_val;	
+	NEW.dashboard_order=max_val+1;			
+		
+	RETURN NEW;
+END;
+$BODY$
+LANGUAGE plpgsql VOLATILE;
+
+CREATE TRIGGER _smartipm_update_order_trigger BEFORE INSERT  ON dashboard FOR EACH ROW EXECUTE PROCEDURE _smartipm_update_order();
 

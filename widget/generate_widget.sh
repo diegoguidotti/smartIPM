@@ -1,5 +1,6 @@
-cd Aedit_simple_weather_provider
+cd smartipm_run_model
 cp ../../js/smartIPM.js js/ 
-zip -r Aedit_simple_weather_provider.zip *
-mv Aedit_simple_weather_provider.zip ../
+cp ../../css/smartIPM.css css/smartIPM.css
+zip -r smartipm_run_model.zip *
+mv smartipm_run_model.zip ../
 cd ..

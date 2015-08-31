@@ -54,9 +54,13 @@ class RunModel {
 				
 				// get the weather value from the WeatherScenarioSimpleResponseMessage
 				$value = $objWeather->values;
+				
+
 				$aWeather = Utils::CSV2Array($value, $objWeather->blockSeparator, $objWeather->tokenSeparator);
 
 				$aResult = $this->runPestModel($aWeather, $aModel);
+
+				
 
 				return $this->prepareOutput($obj, $aResult);
 		}
@@ -103,7 +107,9 @@ class RunModel {
 						$xml .= '</PestModel>';
 					}
 				else{
-					$xml .= '<Message>'.$obj->message.'</Message>';
+
+					
+					$xml .= '<Message>'.$aResult['message'].'</Message>';
 				}	
 				$xml .= '</RunPestModelResponseMessage>';
 				return $xml;		
@@ -115,38 +121,99 @@ class RunModel {
 	public function runPestModel($aWeather, $aModel)
 	{
 		$Tsum = 0;
-		$perc = 0;
+		$mod_res = 0;
 		
+
+
 		$lt = $aModel['lowerThreshold'];
 		$req = $aModel['requiredDayDegree'];
+		$formula=null;
+		if(isset($aModel['formula'])){
+			$formula=$aModel['formula'];
+		}
+
+/*
+		echo "Formula".$formula;
+		echo "LT:".$lt;
+		echo "REQ:".$lt;
+		echo "CPINT:".count(count($aWeather));
+*/
+
+
+
 		$values='';
 		$sepVal=';';
 		$sepRow=':::';
 
 		$header	= ("Cumulated".$sepVal."Percentage");
+		if($formula!=null){
+			$header	= ("Daily".$sepVal."Cumulated");
+		}
 		$events = Array(
 			Array('label'=>'Completed Date', 'value'=>'') 
 		);
 		
-		for( $w = 0; $w < count($aWeather); $w++ )
-			{
-				$temp = $aWeather[$w][1];
-				
-				if( $temp > $lt )
-					$Tsum += $temp-$lt;
+		if(count($aWeather)<=1){
+			$aRet= array('ok'=> false, 'message' => 'There are no weather data to run the model');
+		}
+		else{	
+		
+			$allOk=true;
 
-				$perc=$Tsum/$req;
-				if($perc>1){
-					$perc=1;
-					if($events[0]['value']==''){
-						$events[0]['value']=$aWeather[$w][0];
+			
+			
+			for( $w = 0; $w < count($aWeather); $w++ )
+				{
+					
+
+					if(count($aWeather[$w])==0){
+						$allOk=false;
+					}
+					else{
+
+						$temp = $aWeather[$w][1];
+
+						//echo "Temp:".$temp."<br/>";
+
+
+						if($formula!=null){
+
+							
+							$mod_res=$this->calc($formula, Array(':tmed'=>$temp));
+							//echo "form:".$formula."<br/>res:".$mod_res."<br/>";
+							if( $mod_res < $lt ){
+								$mod_res=0;
+							}
+
+							$Tsum+=$mod_res;
+
+							$values.=$aWeather[$w][0].$sepVal.($mod_res).$sepVal.$Tsum.$sepRow;
+
+						}
+						else{
+							if( $temp > $lt ){
+								$Tsum += $temp-$lt;
+							}
+							if($req>0)
+								$mod_res=$Tsum/$req;
+							else
+								$mod_res=$Tsum;
+
+							if($mod_res>1 && $req>0){
+								$mod_res=1;
+								if($events[0]['value']==''){
+									$events[0]['value']=$aWeather[$w][0];
+								}
+							}
+							$values.=$aWeather[$w][0].$sepVal.$Tsum.$sepVal.($mod_res).$sepRow;
+
+						}
+						
 					}
 				}
-
-				$values+=$aWeather[$w][0].$sepVal.$Tsum.$sepVal.($perc).$sepRow;
-			}
 		
-		$aRet= array('ok'=> true, 'day_degree' => $Tsum,  'events'=> $events, 'results'=> Array('headers'=>$header, 'values'=>$values), 'message' => 'The model has been runned successully!');
+			$aRet= array('ok'=> true, 'day_degree' => $Tsum,  'events'=> $events, 'results'=> Array('headers'=>$header, 'values'=>$values), 'message' => 'The model has been runned successully!', 'allok'=> $allOk);
+	}
 
 		
 
@@ -154,7 +221,36 @@ class RunModel {
 	}
 
 
-	
+	function calc($equation, $aVar){
+
+		while (list($key, $val) = each( $aVar)) {
+			$equation= str_replace($key, $val, $equation);
+				//echo "$key => $val<br/>";
+		}
+		
+
+    // Remove whitespaces
+    $equation = preg_replace('/\s+/', '', $equation);
+    //echo $equation."<br/>";
+
+    $number = '((?:0|[1-9]\d*)(?:\.\d*)?(?:[eE][+\-]?\d+)?|pi|π|x)'; // What is a number
+
+    $functions = '(?:sinh?|cosh?|tanh?|acosh?|asinh?|atanh?|exp|log(10)?|deg2rad|rad2deg
+|sqrt|pow|abs|intval|ceil|floor|round|(mt_)?rand|gmp_fact)'; // Allowed PHP functions
+    $operators = '[\/*\^\+-,]'; // Allowed math operators
+    $regexp = '/^([+-]?('.$number.'|'.$functions.'\s*\((?1)+\)|\((?1)+\))(?:'.$operators.'(?1))?)+$/'; // Final regexp, heavily using recursive patterns
+
+    if (preg_match($regexp, $equation))
+    {
+        $equation = preg_replace('!pi|π!', 'pi()', $equation); // Replace pi with pi function        
+        eval('$result = '.$equation.';');
+    }
+    else
+    {
+        $result = false;
+    }
+    return $result;
+}
 
 }
 

@@ -111,6 +111,7 @@ class WeatherProvider {
 				$xml .= '				<decimalSeparator>'.$this->decSeparator.'</decimalSeparator>';
 				$xml .= '				<tokenSeparator>'.$this->toSeparator.'</tokenSeparator>';
 				$xml .= '				<values></values>';
+			  $xml .= '				<message>'.$res_data['message'].'</message>';
 				$xml .= '			</ns3:WeatherScenarioSimpleResponseMessage>';
 			}
 
@@ -131,8 +132,7 @@ class WeatherProvider {
 				$var = array(':lon' => $obj->longitude, ':lat' => $obj->latitude, ':dist' => 100000);
 			}
 		
-		$res = $this->db->select($q, $var);
-		//echo $this->db->getSQL($q, $var);
+		$res = $this->db->select($q, $var);		
 		if( $res['rowCount'] == 0 )
 			$res = array('ok' => false, 'data' => array(), 'message' => "No station selected");
 
@@ -168,15 +168,22 @@ class WeatherProvider {
 						$what .= $aWField[$nF] . ", ";
 					}
 				
-				$q  = "select $what time_ref from weather_data where id_weather_station = :station $where";
+				$q  = "select $what time_ref from weather_data where id_weather_station = :station $where order by time_ref";
 				$var[':station'] = $res['data'][0]['id_weather_station'];
 				$res_data = $this->db->select($q, $var);
+
 				$res_data['latitude'] = $res['data'][0]['latitude'];
 				$res_data['longitude'] = $res['data'][0]['longitude'];
+				//print_r($res_data);
 				//echo "getWeatherData: " . $this->db->getSQL($q,$var);
-				
-				if( $res_data['rowCount'] == 0 )
-					$res_data = array('ok' => false, 'data' => array(), 'message' => "No data available");
+				if($res_data['ok']==False){
+						$res_data = array('ok' => false, 'data' => array(), 'message' => "".$res_data['message']);
+				}
+				else{
+					if( $res_data['rowCount'] == 0 ){
+						$res_data = array('ok' => false, 'data' => array(), 'message' => "No data available");
+					}
+				}
 			}
 		else
 			$res_data = $res;

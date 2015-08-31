@@ -6,7 +6,7 @@ class Utils {
 
 
 	public static function CSV2Array($value, $rowSep=':::', $colSep=";")
-	{
+	{		
 		// transform the weather value from string to array
 		$value = substr($value, 0, strlen($value)-3);
 		$aRows = explode($rowSep, $value);

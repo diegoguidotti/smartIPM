@@ -36,10 +36,18 @@ class FIWARELogin {
 
     	unset($_SESSION['smartIPM_access_token']);
     	unset($_SESSION['smartIPM_account']);
+
+
+			$auth_url = $this->client->getAuthenticationUrl($this->var['LOGOUT_ENDPOINT'], $this->var['REDIRECT_URI']);
+	    header('Location: ' . $auth_url);
+	    die('Redirect');
+	
+			
+
     }
 
     public function doLogin(){
-		$auth_url = $this->client->getAuthenticationUrl($this->var['AUTHORIZATION_ENDPOINT'], $this->var['REDIRECT_URI']);
+			$auth_url = $this->client->getAuthenticationUrl($this->var['AUTHORIZATION_ENDPOINT'], $this->var['REDIRECT_URI']);
 	    header('Location: ' . $auth_url);
 	    die('Redirect');
     }
@@ -126,13 +134,14 @@ class FIWARELogin {
 					else{
 						$res = $this->db->select("update users set last_login=Now() WHERE id_user=:id;", 
 							Array(":id"=>$this->account->id)
-						);										
-						$res = $this->db->select("select role from users_role WHERE id_user=:id;", 
-							Array(":id"=>$this->account->id)
-						);	
-						$this->account->roles=$res['data'];
-
+						);																
 					}
+
+					$res = $this->db->select("select role from users_role WHERE id_user=:id;", 
+						Array(":id"=>$this->account->id)
+					);	
+					$this->account->roles=$res['data'];
+
 					//print_r($res);
 
 					//print_r($this->account);
@@ -170,8 +179,7 @@ class FIWARELogin {
 			curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 
 				
-			//curl_setopt($ch, CURLOPT_POST, 1);
-			//curl_setopt($ch, CURLOPT_POSTFIELDS,$vars);  //Post Fields
+			
 			curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
 			curl_setopt($ch, CURLOPT_VERBOSE, 1);
 			curl_setopt($ch, CURLOPT_HEADER, 1);
@@ -180,7 +188,9 @@ class FIWARELogin {
 			//$headers[] = 'X-Auth-Token: '.$accessToken;
 			$headers[] = 'Content-Type: application/json';
 			$headers[] = 'Accept: application/json';
+			
 			$headers[] = 'Authorization: Bearer '.$accessToken;
+			
 		
 			curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
 			$response = curl_exec ($ch);
