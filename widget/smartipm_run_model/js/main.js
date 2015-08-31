@@ -2,28 +2,42 @@
 window.addEventListener("DOMContentLoaded", init, false);
 
 var mashup;
+
+var latitude, longitude;
+
 function init(){	
 
 // 
 	var url=	MashupPlatform.prefs.get("url");
-	var latitude=	MashupPlatform.prefs.get("latitude");
-	var longitude=	MashupPlatform.prefs.get("longitude");
+	latitude=	MashupPlatform.prefs.get("latitude");
+	longitude=	MashupPlatform.prefs.get("longitude");
 	var start_date=	MashupPlatform.prefs.get("start_date");
 	var end_date=	MashupPlatform.prefs.get("end_date");
 	var lowerThreshold=	MashupPlatform.prefs.get("lowerThreshold");
 	var requiredDayDegree=	MashupPlatform.prefs.get("requiredDayDegree");
 
-	username = MashupPlatform.context.get("username");
-  html='<b>user:</b>'+username+'<br/>';
-  html+='<b>coordinates:</b>'+latitude+' '+longitude+'<br/>';
- 	html+='<b>dates:</b>'+start_date+' - '+end_date+'<br/>';
-
-	html+='<h3>Model result</h3><div id="model_result">mr</div>';	
+	username = MashupPlatform.context.get("username");  
+	html='<div id="model_result">You need to select a point on the map</div>';	
 	jQuery('#content').html(html);
+
+	
+		MashupPlatform.wiring.registerCallback("coordinates",function(val){
+
+				console.log(val);
+				coo=val.split(val,"|");
+				jQuery('#model_result').html('');
+				latitude=coo[0];
+				longitude=coo[1];
+				createWidget();
+		});
+		//testDashboard(username);
+}
+
+
+function createWidget(){
 
 	var options={};
 	current_model=1;
-
 	if(current_model==0){
 			options={
 				'url': url+'weather-scenario-simple',
@@ -54,7 +68,4 @@ function init(){
 
 		addModelWidget(v, '#model_result',0);  
 
-	
-	
-		//testDashboard(username);
 }

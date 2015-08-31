@@ -3,8 +3,8 @@
 
     <Catalog.ResourceDescription>
         <Vendor>Aedit</Vendor>
-        <Name>SmartIPMRunModel</Name>
-        <DisplayName>SmartIPM RunModel</DisplayName>
+        <Name>SmartIPMGISSelector</Name>
+        <DisplayName>SmartIPM GIS Selector</DisplayName>
         <Author>Diego Guidotti, Michele Mammini</Author>
         <Version>1</Version>
         <Mail>diego.guidotti@gmail.com</Mail>
@@ -15,18 +15,13 @@
     </Catalog.ResourceDescription>
 
     <Platform.Preferences>
-        <Preference name="url" type="text" description="Basic URL" label="URL" default="http://www.smartipm.eu/smartIPM/api/"/>
         <Preference name="latitude" type="text" description="Latitude" label="Latitude" default="43.35012"/>
         <Preference name="longitude" type="text" description="Longitude" label="Longitude" default="10.52148"/>
-        <Preference name="start_date" type="text" description="Start Date" label="Start Date" default="j1"/>
-        <Preference name="end_date" type="text" description="End date" label="End Date" default="t"/>
-        <Preference name="lowerThreshold" type="text" description="lowerThreshold" label="lower Threshold" default="10"/>
-        <Preference name="requiredDayDegree" type="text" description="requiredDayDegree" label="requiredDayDegree" default="500"/>        
+        <Preference name="zoom" type="text" description="Zoom" label="Zoom" default="7"/>
     </Platform.Preferences>
 
     <Platform.Wiring>
-        <OutputEndpoint name="outputValue" type="text" label="output" description="Input Value" friendcode="keyword"/>
-        <InputEndpoint  name="coordinates"  type="text" label="coordinates"  description="coordinates" friendcode="keyword"/>
+        <OutputEndpoint name="coordinates" type="text" label="coordinates" description="Coordinates" friendcode="keyword"/>
     </Platform.Wiring>
 
     <Platform.Link>
