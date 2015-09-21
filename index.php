@@ -31,6 +31,9 @@
 
 	//$login=new smartIPM\BasicLogin($var);
 	$login=new smartIPM\FIWARELogin($db, $aSetting['OAUTH2']);
+	if($offline){
+		$login->SetAccount(json_decode("'id':'0000', 'firstName'=>'A', 'lastName'=>'Z'"));
+	}	
 
 
 	if(isset($_REQUEST['do_login'])){
@@ -99,21 +102,23 @@
 
 			//check role;
 			$isAdmin=false;			
-			$aPage['navRight'][0]['title']='Hi '.$acc->firstName." ".$acc->lastName;
-			if($acc->roles){
-				foreach($acc->roles as $r ){
-					$role;
-					if(is_object($r)){
-						$role=$r->role;
+			if($acc){
+				$aPage['navRight'][0]['title']='Hi '.$acc->firstName." ".$acc->lastName;
+				if($acc->roles){
+					foreach($acc->roles as $r ){
+						$role;
+						if(is_object($r)){
+							$role=$r->role;
+						}
+						else{
+							$role=$r['role'];
+						}
+						if($role=='admin'){
+							$isAdmin=true;
+						}
 					}
-					else{
-						$role=$r['role'];
-					}
-					if($role=='admin'){
-						$isAdmin=true;
-					}
-				}
-			}			
+				}			
+			}
 			
 
 			$aPage['navRight'][1]['title']='Logout';
@@ -168,7 +173,7 @@
 						$body .= testModelManager($app);
 					}
 					else if($_REQUEST['sect']=='run_model'){
-						$aPage['title']='Run a Model';
+						$aPage['title']='';
 						$body .= testWebGIS($app, $offline);
 					}
 					else if($_REQUEST['sect']=='dashboard'){
@@ -208,7 +213,7 @@
 		$html.='<div class="row"><div class="col-md-4"><img class="center-block img-responsive" src="resources/smartIPM.png"/><div style="text-align: justify" class="panel panel-default">
   <div class="panel-body">'.$txt.'</div></div></div><div class="col-md-8">
 				<div class="embed-responsive embed-responsive-16by9">
-  				<iframe class="embed-responsive-item" src="https://www.youtube.com/embed/zRCmLWIqOZM"></iframe>
+  				<iframe class="embed-responsive-item" src="https://www.youtube.com/embed/kzmNftx4ZuE"></iframe>
 				</div></div></div>';
 		return $html;
 	}

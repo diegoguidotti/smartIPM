@@ -6,7 +6,7 @@
         <Name>SmartIPMGISSelector</Name>
         <DisplayName>SmartIPM GIS Selector</DisplayName>
         <Author>Diego Guidotti, Michele Mammini</Author>
-        <Version>1</Version>
+        <Version>2</Version>
         <Mail>diego.guidotti@gmail.com</Mail>
         <Description>Showing a smartIPM model results</Description>
         <ImageURI>images/logo.png</ImageURI>

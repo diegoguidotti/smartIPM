@@ -71,7 +71,9 @@ div.dashboard_tile .panel-body{
     width: 360px;
 
 }
-
+#smartIPM_map{
+   margin-top:10px;
+}
 #startModel, #endModel{
 display:none;
 } 

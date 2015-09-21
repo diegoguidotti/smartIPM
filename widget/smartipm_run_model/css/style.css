@@ -2,3 +2,8 @@ body {
     width: auto;
     height: auto;
 }
+
+
+.dashboard_tile .panel-heading{
+	display:none;
+}

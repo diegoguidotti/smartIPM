@@ -4,9 +4,9 @@
     <Catalog.ResourceDescription>
         <Vendor>Aedit</Vendor>
         <Name>SmartIPMRunModel</Name>
-        <DisplayName>SmartIPM RunModel</DisplayName>
+        <DisplayName>SmartIPM RunModel2</DisplayName>
         <Author>Diego Guidotti, Michele Mammini</Author>
-        <Version>1</Version>
+        <Version>9</Version>
         <Mail>diego.guidotti@gmail.com</Mail>
         <Description>Showing a smartIPM model results</Description>
         <ImageURI>images/logo.png</ImageURI>

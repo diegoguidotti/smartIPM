@@ -104,7 +104,7 @@ class FIWARELogin {
         if(isset($response['result']['error'])){
         	$ret['ok']=false;	
             $ret['message']=($response['result']['error_description']);
-    		$this->isAut=false;
+    			$this->isAut=false;
         }
         else{
         	$ret['ok']=true;	
@@ -216,6 +216,10 @@ class FIWARELogin {
 
     public function getAccount(){
 			return $this->account;
+		}
+
+    public function setAccount($acc){
+			$this->account=$acc;
 		}
 
     public function isAut(){

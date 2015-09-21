@@ -9,9 +9,9 @@ var marker, marker_widget;
 
 var models=[
 	{'id_model':0, 'model_name': 'Get Weather Data', 'startModel': 't-10', 'endModel':'t' }, 	
-	{'id_model':1, 'model_name': 'Olive generation', 'lowerThreshold': 10, 'startModel': 'j150', 'endModel':'t', 'upperThreshold':40, 'requiredDayDegree':369}, 
-	{'id_model':2, 'model_name': 'OFF mortality', 'startModel': 't-20', 'endModel':'t', 'formula': '0.000002*exp(:tmed*0.2539)',custom_format:{'label': 'the estimated % of larvae mortality is '}} ,
-	{'id_model':3, 'model_name': 'OFF fertility', 'startModel': 't-20', 'endModel':'t', 'lowerThreshold': 0,'formula': '-0.7439*pow(:tmed,2)+35.89*:tmed-407.63', 	custom_format:{'formatter': 'simple', 'label': 'Estimated number of eggs'} } ,
+	{'id_model':1, 'model_name': 'Olive fruit fly generation', 'lowerThreshold': 8.99, 'startModel': 'j220', 'endModel':'t', 'upperThreshold':40, 'requiredDayDegree':369}, 
+	{'id_model':2, 'model_name': 'Olive fruit fly mortality', 'startModel': 't-20', 'endModel':'t', 'formula': '0.000002*exp(:tmed*0.2539)',custom_format:{'label': 'the estimated % of larvae mortality is '}} ,
+	{'id_model':3, 'model_name': 'Olive fruit fly fertility', 'startModel': 't-20', 'endModel':'t', 'lowerThreshold': 0,'formula': '-0.7439*pow(:tmed,2)+35.89*:tmed-407.63', 	custom_format:{'formatter': 'simple', 'label': 'Estimated number of eggs'} } ,
 	{'id_model':4, 'model_name': 'Olive phenology', 'startModel': 'j1', 'endModel':'t', 'lowerThreshold': 10, 	
 		custom_format:{
 			'formatter': 'simple', 'label': 'Plant phenology stage', 
@@ -26,7 +26,7 @@ var models=[
 			]
 		} 
 	} ,
-	{'id_model':5, 'model_name': 'Helicoverpa armigera', 'startModel': 'j1', 'endModel':'t', 'lowerThreshold': 10.71, 	
+	{'id_model':5, 'model_name': 'Tomato Fruit Borer', 'startModel': 'j1', 'endModel':'t', 'lowerThreshold': 10.71, 	
 		custom_format:{
 			'formatter': 'simple', 'label': 'The Heliotis stage', 
 			'classes': [			
@@ -41,7 +41,7 @@ var models=[
 			]
 		} 
 	}  ,
-	{'id_model':6, 'model_name': 'Corn borer', 'startModel': 'j1', 'endModel':'t', 'lowerThreshold': 10, 	
+	{'id_model':6, 'model_name': 'European Corn borer', 'startModel': 'j1', 'endModel':'t', 'lowerThreshold': 10, 	
 		custom_format:{
 			'formatter': 'simple', 'label': 'Corn borer I generation flight:', 
 			'classes': [			
@@ -70,9 +70,9 @@ function runModel(options){
 	url_model=options.url_model;
 	url_weather=options.url_weather;
 
-	//console.log(options);
+	console.log(options);
 
-	//console.log('Model on url '+url_model);	
+	console.log('Model on url '+url_model);	
 	//console.log('Weather on url '+url_weather);		
 	xml = getXMLModel(options);
 	jQuery('#xml_input').val(JSON.stringify(options));
@@ -92,7 +92,8 @@ function runModel(options){
 		  success: function(data){
 					xmldata = data;
 					
-		      //console.log("getModelData: device control succeeded");
+		      console.log("getModelData: device control succeeded");
+					console.log(data);
 
 					modres = jQuery(xmldata).find('ModelResult');	
 
@@ -1382,6 +1383,8 @@ function setEmptyDashboard(){
 
 
 function addModelWidget(v, div_element, pos){
+
+				console.log('AddModelWdget');
 
 				if(!pos){pos=0;}
 

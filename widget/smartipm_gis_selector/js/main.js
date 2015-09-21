@@ -11,7 +11,7 @@ function init(){
 	var zoom=	MashupPlatform.prefs.get("zoom");
 	username = MashupPlatform.context.get("username");
 
-	jQuery('#debug').append('start'+latitude+longitude);
+	debug('start'+latitude+longitude);
 		map= L.map('map', { zoomControl:false }).setView([latitude,longitude], zoom);
 		
 		var mapquestUrl = 'http://{s}.mqcdn.com/tiles/1.0.0/osm/{z}/{x}/{y}.png',
@@ -24,7 +24,7 @@ function init(){
 
 		map.on('click', function(e){
 
-			jQuery('#debug').append('click');
+			debug('click');
 
 
 			if(marker){
@@ -38,12 +38,21 @@ function init(){
 
 
 		MashupPlatform.widget.context.registerCallback(function (new_values) {
-			jQuery('#debug').append('callback');
-			jQuery('#debug').append(new_values);
-		  if ('heightInPixels' in new_values) {
-					map.invalidateSize();
-		  }
+			debug('callback');
+			map.invalidateSize();
+			jQuery.each(new_values, function(k,v){
+				console.log(k+" "+v);
+			});
+			
+		  //if ('heightInPixels' in new_values) {
+			//		map.invalidateSize();
+		  //}
 		});
+}
+
+
+function debug(t){
+	jQuery('#debug').append(t+"<br/>")
 }
 
 
